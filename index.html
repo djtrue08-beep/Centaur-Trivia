@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Centaur Trivia</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #151515;
+      color: #f5d27a;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    main {
+      width: 90%;
+      max-width: 650px;
+    }
+    h1 {
+      font-size: clamp(36px, 8vw, 65px);
+      margin-bottom: 10px;
+    }
+    h2 { color: white; }
+    p { color: #ddd; }
+    button {
+      display: block;
+      width: 100%;
+      padding: 18px;
+      margin: 15px 0;
+      background: #d4af37;
+      color: #151515;
+      border: none;
+      border-radius: 10px;
+      font-size: 21px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover { background: #f5d27a; }
+    #message {
+      color: white;
+      margin-top: 25px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>CENTAUR TRIVIA</h1>
+    <h2>Hosted by Crixus the Centaur</h2>
+    <p>Enter the arena. Test your knowledge. Claim the crown.</p>
+
+    <button onclick="chooseGame('Quick Game')">
+      QUICK GAME
+    </button>
+
+    <button onclick="chooseGame('Full Game')">
+      FULL GAME
+    </button>
+
+    <p id="message">Choose your game mode to begin.</p>
+  </main>
+
+  <script>
+    function chooseGame(mode) {
+      document.getElementById("message").textContent =
+        mode + " selected. Game setup coming next!";
+    }
+  </script>
+</body>
+</html>
