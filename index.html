@@ -64,10 +64,12 @@
     <p id="message">Choose your game mode to begin.</p>
   </main>
 
-  <script>
-    function chooseGame(mode) {
-      document.getElementById("message").textContent =
-        mode + " selected. Game setup coming next!";
+ 
+function chooseGame(mode) {
+  const gameMode = mode === "Quick Game" ? "quick" : "full";
+  window.location.href = "/host.html?mode=" + gameMode;
+}
+
     }
   </script>
 </body>
