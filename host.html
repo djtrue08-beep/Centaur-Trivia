@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Centaur Trivia | Host Lobby</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #151515;
+      color: #f5d27a;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px 15px;
+    }
+    main {
+      max-width: 900px;
+      margin: auto;
+    }
+    h1 { font-size: clamp(32px, 6vw, 55px); }
+    h2 { color: white; }
+    .panel {
+      background: #242424;
+      border: 1px solid #66551e;
+      border-radius: 15px;
+      padding: 25px;
+      margin: 20px 0;
+    }
+    .room-code {
+      font-size: 55px;
+      font-weight: bold;
+      letter-spacing: 8px;
+      color: white;
+    }
+    .qr-placeholder {
+      background: white;
+      color: #333;
+      width: 180px;
+      height: 180px;
+      margin: 20px auto;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+    }
+    .players {
+      color: white;
+      min-height: 80px;
+    }
+    button {
+      background: #d4af37;
+      color: #151515;
+      border: none;
+      border-radius: 10px;
+      padding: 18px 35px;
+      font-size: 21px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      max-width: 350px;
+    }
+    button:disabled {
+      background: #666;
+      color: #ccc;
+      cursor: not-allowed;
+    }
+    .note { color: #bbb; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>CENTAUR TRIVIA</h1>
+    <h2>Host Lobby</h2>
+    <p id="mode">Game mode: Not selected</p>
+
+    <section class="panel">
+      <h2>JOIN THE ARENA</h2>
+      <div class="room-code" id="roomCode">------</div>
+      <div class="qr-placeholder">
+        QR Code Coming Soon
+      </div>
+      <p class="note">
+        Room codes and QR joining will activate
+        when we connect the lobby.
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2>PLAYERS: <span id="count">0</span> / 60</h2>
+      <div class="players" id="playerList">
+        Waiting for players...
+      </div>
+    </section>
+
+    <button id="startButton" disabled>
+      START GAME
+    </button>
+
+    <p class="note" id="status">
+      Multiplayer connection not configured yet.
+    </p>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(
+      window.location.search
+    );
+    const mode = params.get("mode");
+
+    if (mode === "quick" || mode === "full") {
+      document.getElementById("mode").textContent =
+        "Game mode: " +
+        (mode === "quick" ? "Quick Game" : "Full Game");
+    }
+  </script>
+</body>
+</html>
