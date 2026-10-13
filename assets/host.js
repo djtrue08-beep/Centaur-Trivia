@@ -149,12 +149,18 @@ function renderGame(data) {
   $('gameButton').classList.add('hidden');
   $('hostChoices').replaceChildren();
   const reveal = ['reveal', 'leaderboard', 'intermission', 'finished'].includes(data.phase);
-  (Array.isArray(data.choices) ? data.choices : []).forEach((choice, index) => {
-    const line = document.createElement('div');
-    line.className = 'host-choice' + (reveal && index === data.correctAnswer ? ' correct' : '');
-    line.textContent = `⭐ ${choice}`;
-    $('hostChoices').append(line);
-  });
+  if (reveal && data.correctAnswer !== null) {
+    const correctChoice = data.choices?.[data.correctAnswer];
+
+    if (correctChoice !== undefined) {
+      const line = document.createElement('div');
+
+      line.className = 'host-choice correct';
+      line.textContent = `CORRECT ANSWER: ${correctChoice}`;
+
+      $('hostChoices').append(line);
+    }
+  }
   if (data.phase === 'question') button('START 12-SECOND TIMER', 'timer');
   if (data.phase === 'answering') {
     const remaining = Math.max(0, Math.ceil((Date.parse(data.endsAt) - Date.now()) / 1000));
