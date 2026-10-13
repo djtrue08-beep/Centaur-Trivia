@@ -8,6 +8,8 @@ let actionBusy = false;
 let narratedPhaseKey = '';
 let autoTimerKey = '';
 let voiceFinished = false;
+let revealAdvanceTimeout = null;
+let revealAdvanceKey = '';
 const say = text => { $('message').textContent = text; };
 
 async function api(path, options = {}) {
@@ -172,10 +174,25 @@ function narratePhase(data, key) {
   }
 }
 
+function scheduleRevealAdvance(key) {
+  if (revealAdvanceKey === key) return;
+  clearTimeout(revealAdvanceTimeout);
+  revealAdvanceKey = key;
+  revealAdvanceTimeout = setTimeout(() => {
+    revealAdvanceTimeout = null;
+    if (lastPhaseKey === key && !actionBusy) {
+      gameAction('next');
+    }
+  }, 5000);
+}
+
 function renderGame(data) {
   show('gamePanel');
   const key = `${data.number}:${data.phase}`;
   if (key !== lastPhaseKey) {
+    clearTimeout(revealAdvanceTimeout);
+    revealAdvanceTimeout = null;
+    revealAdvanceKey = '';
     lastPhaseKey = key;
     say('');
   }
@@ -215,7 +232,8 @@ function renderGame(data) {
   }
   if (data.phase === 'reveal') {
     $('gameHeading').textContent = 'CORRECT ANSWER REVEALED';
-    button(data.number % 5 === 0 ? 'SHOW LEADERBOARD' : 'NEXT QUESTION', 'next');
+    $('clock').textContent = 'Next screen in 5 seconds';
+    scheduleRevealAdvance(key);
   }
   if (data.phase === 'leaderboard') {
     renderLeaderboard(data);
