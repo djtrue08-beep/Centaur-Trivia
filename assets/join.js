@@ -1,3 +1,123 @@
-const $=id=>document.getElementById(id);const params=new URLSearchParams(location.search);$('code').value=(params.get('code')||'').toUpperCase();let code='',timer=null;const say=x=>$('message').textContent=x;async function api(path,options={}){const r=await fetch('/api/'+path,{credentials:'same-origin',...options,headers:{'Content-Type':'application/json',...(options.headers||{})}});const d=await r.json();if(!r.ok)throw Error(d.error||'Request failed');return d}
-$('joinForm').onsubmit=async e=>{e.preventDefault();try{const d=await api('join-room',{method:'POST',body:JSON.stringify({code:$('code').value,name:$('name').value})});code=d.roomCode;$('formPanel').classList.add('hidden');$('waiting').classList.remove('hidden');say('Joined as '+d.playerName);refresh();timer=setInterval(refresh,3000)}catch(e){say(e.message)}};
-async function refresh(){try{const d=await api('room-state?code='+encodeURIComponent(code));$('count').textContent=d.count;if(d.status!=='waiting'){$('phase').textContent='The host has started the game! Gameplay is coming in the next update.';clearInterval(timer)}}catch(e){say(e.message)}}
+const $ = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+$('code').value = (params.get('code') || '').toUpperCase();
+let code = '';
+let timer = null;
+let busy = false;
+const say = text => { $('message').textContent = text; };
+
+async function api(path, options = {}) {
+  const response = await fetch('/api/' + path, {
+    credentials: 'same-origin', ...options,
+    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }
+  });
+  const data = await response.json();
+  if (!response.ok) throw Error(data.error || 'Request failed');
+  return data;
+}
+
+$('joinForm').onsubmit = async event => {
+  event.preventDefault();
+  try {
+    const data = await api('join-room', {
+      method: 'POST',
+      body: JSON.stringify({ code: $('code').value, name: $('name').value })
+    });
+    code = data.roomCode;
+    $('formPanel').classList.add('hidden');
+    $('waiting').classList.remove('hidden');
+    say('Joined as ' + data.playerName);
+    await refresh();
+    timer = setInterval(refresh, 1000);
+  } catch (e) { say(e.message); }
+};
+
+async function submit(choice) {
+  if (busy) return;
+  busy = true;
+  try {
+    await api('submit-answer', {
+      method: 'POST', body: JSON.stringify({ choice })
+    });
+    say('Answer locked!');
+    await refresh();
+  } catch (e) { say(e.message); }
+  finally { busy = false; }
+}
+
+function showLeaderboard(data) {
+  const board = $('playerLeaderboard');
+  board.replaceChildren();
+  const heading = document.createElement('h3');
+  heading.textContent = data.phase === 'finished' ? 'FINAL STANDINGS' : 'LEADERBOARD';
+  board.append(heading);
+  (data.leaderboard || []).forEach((person, index) => {
+    const row = document.createElement('p');
+    row.textContent = `${index + 1}. ${person.name} — ${person.score} points`;
+    board.append(row);
+  });
+  if (data.phase === 'finished' && data.leaderboard?.length) {
+    const best = data.leaderboard[0].score;
+    const winners = data.leaderboard.filter(p => p.score === best).map(p => p.name);
+    $('playerHeading').textContent = '👑 ' + winners.join(' & ') + ' 👑';
+  }
+}
+
+function renderGame(data) {
+  $('waiting').classList.add('hidden');
+  $('playerGame').classList.remove('hidden');
+  $('playerMeta').textContent = `ROUND ${data.round} · QUESTION ${data.number}/${data.total}`;
+  $('playerHeading').textContent = 'CHOOSE YOUR ANSWER';
+  $('playerQuestion').textContent = data.question || '';
+  $('playerLeaderboard').replaceChildren();
+  $('answerChoices').replaceChildren();
+  $('playerClock').textContent = '';
+  $('answerStatus').textContent = '';
+  if (data.phase === 'question') {
+    $('playerHeading').textContent = 'GET READY';
+    $('answerStatus').textContent = 'Waiting for Crixus to finish the question...';
+  }
+  if (data.phase === 'answering') {
+    const remaining = Math.max(0, Math.ceil((Date.parse(data.endsAt) - Date.now()) / 1000));
+    $('playerClock').textContent = remaining + 's';
+    if (data.myAnswer !== null) $('answerStatus').textContent = '⭐ Answer locked!';
+    else if (!remaining) $('answerStatus').textContent = 'Time is up!';
+    (Array.isArray(data.choices) ? data.choices : []).forEach((choice, index) => {
+      const button = document.createElement('button');
+      button.className = 'answer-option';
+      button.textContent = '⭐ ' + choice;
+      button.disabled = data.myAnswer !== null || remaining === 0;
+      if (data.myAnswer === index) button.classList.add('chosen');
+      button.onclick = () => submit(index);
+      $('answerChoices').append(button);
+    });
+  }
+  if (data.phase === 'reveal') {
+    $('playerHeading').textContent = 'ANSWER REVEAL';
+    const correct = data.choices?.[data.correctAnswer];
+    $('answerStatus').textContent = '⭐ Correct answer: ' + correct;
+  }
+  if (data.phase === 'leaderboard' || data.phase === 'finished') {
+    $('playerHeading').textContent = data.phase === 'finished' ? 'GAME COMPLETE' : 'ROUND COMPLETE';
+    showLeaderboard(data);
+  }
+  if (data.phase === 'intermission') {
+    $('playerHeading').textContent = 'INTERMISSION';
+    $('answerStatus').textContent = 'Waiting for the host to resume.';
+  }
+}
+
+let refreshing = false;
+async function refresh() {
+  if (!code || refreshing) return;
+  refreshing = true;
+  try {
+    const room = await api('room-state?code=' + encodeURIComponent(code));
+    $('count').textContent = room.count;
+    if (room.status !== 'waiting') {
+      const state = await api('game-state?code=' + encodeURIComponent(code));
+      renderGame(state);
+    }
+  } catch (e) { say(e.message); }
+  finally { refreshing = false; }
+}
