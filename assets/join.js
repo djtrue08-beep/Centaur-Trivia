@@ -1,7 +1,8 @@
 const $ = id => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 $('code').value = (params.get('code') || '').toUpperCase();
-let code = '';
+let code = sessionStorage.getItem('centaur_room') || '';
+if (code) $('code').value = code;
 let timer = null;
 let busy = false;
 const say = text => { $('message').textContent = text; };
@@ -24,6 +25,7 @@ $('joinForm').onsubmit = async event => {
       body: JSON.stringify({ code: $('code').value, name: $('name').value })
     });
     code = data.roomCode;
+    sessionStorage.setItem('centaur_room', code);
     $('formPanel').classList.add('hidden');
     $('waiting').classList.remove('hidden');
     say('Joined as ' + data.playerName);
@@ -114,10 +116,24 @@ async function refresh() {
   try {
     const room = await api('room-state?code=' + encodeURIComponent(code));
     $('count').textContent = room.count;
+    $('formPanel').classList.add('hidden');
+    if (room.status === 'waiting') $('waiting').classList.remove('hidden');
     if (room.status !== 'waiting') {
       const state = await api('game-state?code=' + encodeURIComponent(code));
       renderGame(state);
     }
   } catch (e) { say(e.message); }
   finally { refreshing = false; }
+}
+
+// Reconnect using the signed player cookie, never by claiming an existing name.
+if (code) {
+  refresh().then(() => {
+    if (!document.querySelector('#waiting').classList.contains('hidden') ||
+        !document.querySelector('#playerGame').classList.contains('hidden')) {
+      timer = setInterval(refresh, 1000);
+    } else {
+      sessionStorage.removeItem('centaur_room');
+    }
+  });
 }

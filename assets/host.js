@@ -10,6 +10,8 @@ let autoTimerKey = '';
 let voiceFinished = false;
 let revealAdvanceTimeout = null;
 let revealAdvanceKey = '';
+let transitionKey = '';
+let transitionBusy = false;
 const say = text => { $('message').textContent = text; };
 
 async function api(path, options = {}) {
@@ -30,7 +32,14 @@ function show(id) {
 
 (async () => {
   try {
-    show((await api('host-session')).authenticated ? 'setupPanel' : 'loginPanel');
+    const authenticated = (await api('host-session')).authenticated;
+    show(authenticated ? 'setupPanel' : 'loginPanel');
+    if (authenticated && sessionStorage.getItem('centaur_host_room')) {
+      code = sessionStorage.getItem('centaur_host_room');
+      restoreLobby();
+      await refresh();
+      timer = setInterval(refresh, 1000);
+    }
   } catch (e) { say(e.message); }
 })();
 
@@ -48,6 +57,9 @@ $('loginForm').onsubmit = async event => {
 
 $('logout').onclick = async () => {
   await api('host-logout', { method: 'POST' });
+  sessionStorage.removeItem('centaur_host_room');
+  code = '';
+  clearInterval(timer);
   show('loginPanel');
   say('Logged out');
 };
@@ -59,20 +71,30 @@ $('create').onclick = async () => {
       method: 'POST', body: JSON.stringify({ mode })
     });
     code = data.room_code;
-    $('roomCode').textContent = code;
+    sessionStorage.setItem('centaur_host_room', code);
+    restoreLobby();
     const url = new URL('/join.html', location.origin);
     url.searchParams.set('code', code);
     $('joinLink').href = url.href;
     $('joinLink').textContent = url.href;
-    $('qr').textContent = '';
-    if (window.QRCode) new QRCode($('qr'), { text: url.href, width: 170, height: 170 });
-    else $('qr').textContent = 'Use the join link below';
     show('lobbyPanel');
     say('Room created');
     await refresh();
     timer = setInterval(refresh, 1000);
   } catch (e) { say(e.message); $('create').disabled = false; }
 };
+
+function restoreLobby() {
+  $('roomCode').textContent = code;
+  const url = new URL('/join.html', location.origin);
+  url.searchParams.set('code', code);
+  $('joinLink').href = url.href;
+  $('joinLink').textContent = url.href;
+  $('qr').replaceChildren();
+  if (window.QRCode) new QRCode($('qr'), { text: url.href, width: 170, height: 170 });
+  else $('qr').textContent = url.href;
+  show('lobbyPanel');
+}
 
 $('copy').onclick = async () => {
   try {
@@ -131,19 +153,35 @@ function renderLeaderboard(data) {
   const board = $('leaderboard');
   board.replaceChildren();
   board.classList.remove('hidden');
+  const people = data.leaderboard || [];
+  if (data.phase === 'finished') {
+    const top = people[0]?.score;
+    const winners = people.filter(person => person.score === top);
+    $('gameHeading').textContent = winners.length > 1 ? 'WINNERS' : 'WINNER';
+    const crown = document.createElement('div');
+    crown.className = 'winner-crown';
+    crown.textContent = '♛';
+    board.append(crown);
+    winners.forEach(person => {
+      const name = document.createElement('div');
+      name.className = 'winner-name';
+      name.textContent = person.name;
+      board.append(name);
+    });
+    const score = document.createElement('div');
+    score.className = 'winner-score';
+    score.textContent = `${top ?? 0} POINTS`;
+    board.append(score);
+    return;
+  }
   const heading = document.createElement('h3');
-  heading.textContent = data.phase === 'finished' ? 'FINAL WINNERS' : 'ROUND LEADERBOARD';
+  heading.textContent = 'ROUND LEADERBOARD';
   board.append(heading);
-  (data.leaderboard || []).forEach((person, index) => {
+  people.forEach((person, index) => {
     const line = document.createElement('p');
     line.textContent = `${index + 1}. ${person.name} — ${person.score} points`;
     board.append(line);
   });
-  if (data.phase === 'finished' && data.leaderboard?.length) {
-    const high = data.leaderboard[0].score;
-    const names = data.leaderboard.filter(p => p.score === high).map(p => p.name);
-    $('gameHeading').textContent = '👑 ' + names.join(' & ') + ' 👑';
-  }
 }
 
 function startQuestionTimer(key) {
@@ -158,7 +196,7 @@ function narratePhase(data, key) {
   CrixusVoice.cancel();
   voiceFinished = false;
   if (data.phase === 'question') {
-    CrixusVoice.speak(data.question || '', () => {
+    CrixusVoice.speak(data.isFinal ? `The final question, worth five hundred points! ${data.question || ''}` : (data.question || ''), () => {
       voiceFinished = true;
       startQuestionTimer(key);
     });
@@ -174,16 +212,19 @@ function narratePhase(data, key) {
   }
 }
 
-function scheduleRevealAdvance(key) {
-  if (revealAdvanceKey === key) return;
+function scheduleTimedAdvance(data, key, seconds) {
+  const elapsed = data.endsAt ? Date.now() - Date.parse(data.endsAt) : 0;
+  const remaining = Math.max(0, seconds * 1000 - elapsed);
+  if (transitionKey === key) return;
+  transitionKey = key;
   clearTimeout(revealAdvanceTimeout);
-  revealAdvanceKey = key;
   revealAdvanceTimeout = setTimeout(() => {
-    revealAdvanceTimeout = null;
-    if (lastPhaseKey === key && !actionBusy) {
-      gameAction('next');
+    if (lastPhaseKey === key) {
+      if (!actionBusy) gameAction('next');
+      else setTimeout(() => { if (lastPhaseKey === key) gameAction('next'); }, 1200);
     }
-  }, 5000);
+    transitionKey = '';
+  }, remaining);
 }
 
 function renderGame(data) {
@@ -193,13 +234,16 @@ function renderGame(data) {
     clearTimeout(revealAdvanceTimeout);
     revealAdvanceTimeout = null;
     revealAdvanceKey = '';
+    transitionKey = '';
     lastPhaseKey = key;
     say('');
   }
-  $('gameMeta').textContent = `ROUND ${data.round} OF ${data.roundCount} · QUESTION ${data.number} OF ${data.total}`;
+  $('gameMeta').textContent = data.isFinal ? 'FINAL QUESTION · 500 POINTS' : `ROUND ${data.round} OF ${data.roundCount} · QUESTION ${data.number} OF ${data.total}`;
+  $('gamePanel').classList.toggle('final-round', !!data.isFinal);
   $('gameHeading').textContent = data.phase === 'finished' ? 'GAME COMPLETE' : 'CENTAUR TRIVIA';
   $('category').textContent = data.category || '';
   $('questionText').textContent = data.question || '';
+  $('questionText').classList.toggle('long-question', (data.question || '').length > 105);
   $('progress').textContent = `${data.answeredCount} / ${data.playerCount} players answered`;
   $('clock').textContent = '';
   $('leaderboard').classList.add('hidden');
@@ -232,12 +276,11 @@ function renderGame(data) {
   }
   if (data.phase === 'reveal') {
     $('gameHeading').textContent = 'CORRECT ANSWER REVEALED';
-    $('clock').textContent = 'Next screen in 5 seconds';
-    scheduleRevealAdvance(key);
+    scheduleTimedAdvance(data, key, 5);
   }
   if (data.phase === 'leaderboard') {
     renderLeaderboard(data);
-    button(data.number === data.total ? 'CROWN THE WINNERS' : 'CONTINUE GAME', 'next');
+    scheduleTimedAdvance(data, key, 15);
   }
   if (data.phase === 'intermission') {
     $('gameHeading').textContent = 'INTERMISSION';
@@ -247,7 +290,9 @@ function renderGame(data) {
   }
   if (data.phase === 'finished') {
     renderLeaderboard(data);
-    $('questionText').textContent = 'Thanks for playing Centaur Trivia!';
+    $('questionText').textContent = '';
+    $('category').textContent = '';
+    $('progress').textContent = '';
     $('hostChoices').replaceChildren();
   }
   narratePhase(data, key);
