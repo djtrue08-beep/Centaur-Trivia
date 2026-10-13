@@ -11,6 +11,7 @@
   <div class="eyebrow">CRIXUS PRESENTS</div>
   <h1>CENTAUR <span>TRIVIA</span></h1>
   <h2>Host Arena · <span id="modeLabel">Quick Game</span></h2>
+  <button id="voiceToggle" class="outline" type="button">VOICE ON · CLICK TO MUTE</button>
   <section id="loginPanel" class="card">
     <h3>HOST ACCESS</h3>
     <form id="loginForm">
@@ -49,11 +50,12 @@
     <p id="progress" class="muted"></p>
     <div id="leaderboard" class="hidden"></div>
     <button id="gameButton" class="hidden">START TIMER</button>
-    <p id="voiceHint" class="muted">Crixus audio can be added later. Start the timer after reading the question.</p>
+    <p id="voiceHint" class="muted">Crixus reads each question before the timer starts.</p>
   </section>
   <p id="message" class="message" role="status"></p>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="/assets/crixus-voice.js"></script>
 <script src="/assets/host.js"></script>
 </body>
 </html>
