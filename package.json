@@ -1,10 +1,1 @@
-
-{
-  "name": "centaur-trivia",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "@supabase/supabase-js": "^2.0.0"
-  }
-}
+{"name":"centaur-trivia","version":"1.1.0","private":true,"type":"module","dependencies":{"@supabase/supabase-js":"^2.0.0"}}
