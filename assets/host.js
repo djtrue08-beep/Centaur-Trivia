@@ -5,6 +5,9 @@ let code = '';
 let timer = null;
 let lastPhaseKey = '';
 let actionBusy = false;
+let narratedPhaseKey = '';
+let autoTimerKey = '';
+let voiceFinished = false;
 const say = text => { $('message').textContent = text; };
 
 async function api(path, options = {}) {
@@ -76,6 +79,15 @@ $('copy').onclick = async () => {
   } catch { say('Copy the displayed join link'); }
 };
 
+$('voiceToggle').onclick = () => {
+  CrixusVoice.setEnabled(!CrixusVoice.enabled);
+  $('voiceToggle').textContent = CrixusVoice.enabled ? 'VOICE ON · CLICK TO MUTE' : 'VOICE OFF · CLICK TO ENABLE';
+  if (!CrixusVoice.enabled && voiceFinished === false && lastPhaseKey.endsWith(':question')) {
+    voiceFinished = true;
+    startQuestionTimer(lastPhaseKey);
+  }
+};
+
 $('start').onclick = async () => {
   try {
     $('start').disabled = true;
@@ -83,6 +95,7 @@ $('start').onclick = async () => {
       method: 'POST', body: JSON.stringify({ code })
     });
     say(data.message);
+    CrixusVoice.speak('Welcome, challengers, to Centaur Trivia! Let the contest begin!');
     await refresh();
   } catch (e) { say(e.message); $('start').disabled = false; }
 };
@@ -131,6 +144,34 @@ function renderLeaderboard(data) {
   }
 }
 
+function startQuestionTimer(key) {
+  if (lastPhaseKey !== key || autoTimerKey === key || actionBusy) return;
+  autoTimerKey = key;
+  gameAction('timer');
+}
+
+function narratePhase(data, key) {
+  if (narratedPhaseKey === key) return;
+  narratedPhaseKey = key;
+  CrixusVoice.cancel();
+  voiceFinished = false;
+  if (data.phase === 'question') {
+    CrixusVoice.speak(data.question || '', () => {
+      voiceFinished = true;
+      startQuestionTimer(key);
+    });
+  } else if (data.phase === 'reveal') {
+    const answer = data.choices?.[data.correctAnswer];
+    if (answer !== undefined) CrixusVoice.speak(`The correct answer is ${answer}.`);
+  } else if (data.phase === 'leaderboard') {
+    CrixusVoice.speak('Behold the leaderboard! Let us see who commands the arena.');
+  } else if (data.phase === 'intermission') {
+    CrixusVoice.speak('Even champions require a moment of rest. We shall resume shortly.');
+  } else if (data.phase === 'finished') {
+    CrixusVoice.speak('The contest is complete! All hail the champions of Centaur Trivia!');
+  }
+}
+
 function renderGame(data) {
   show('gamePanel');
   const key = `${data.number}:${data.phase}`;
@@ -146,6 +187,9 @@ function renderGame(data) {
   $('clock').textContent = '';
   $('leaderboard').classList.add('hidden');
   $('voiceHint').classList.toggle('hidden', data.phase !== 'question');
+  $('voiceHint').textContent = CrixusVoice.enabled
+    ? 'Crixus is reading the question. The timer starts when he finishes.'
+    : 'Voice is off. The timer starts automatically; manual start is also available.';
   $('gameButton').classList.add('hidden');
   $('hostChoices').replaceChildren();
   const reveal = ['reveal', 'leaderboard', 'intermission', 'finished'].includes(data.phase);
@@ -161,7 +205,7 @@ function renderGame(data) {
       $('hostChoices').append(line);
     }
   }
-  if (data.phase === 'question') button('START 12-SECOND TIMER', 'timer');
+  if (data.phase === 'question') button('START TIMER NOW', 'timer');
   if (data.phase === 'answering') {
     const remaining = Math.max(0, Math.ceil((Date.parse(data.endsAt) - Date.now()) / 1000));
     $('clock').textContent = `${remaining}s`;
@@ -188,6 +232,7 @@ function renderGame(data) {
     $('questionText').textContent = 'Thanks for playing Centaur Trivia!';
     $('hostChoices').replaceChildren();
   }
+  narratePhase(data, key);
 }
 
 let refreshing = false;
