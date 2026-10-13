@@ -62,6 +62,13 @@ function selectQuestions(questionBank, roundCount) {
     }
   }
 
+  const finalQuestion = available.find(question => question.difficulty === 3) || available[0];
+  if (!finalQuestion) throw new Error('Final question unavailable');
+  selected.push({
+    question_id: finalQuestion.id,
+    round_number: roundCount + 1,
+    question_number: roundCount * QUESTIONS_PER_ROUND + 1
+  });
   return selected;
 }
 
@@ -146,7 +153,7 @@ export default async function handler(req, res) {
     const roundCount = room.mode === 'quick' ? 3 : 6;
 
     const totalQuestions =
-      roundCount * QUESTIONS_PER_ROUND;
+      roundCount * QUESTIONS_PER_ROUND + 1;
 
     // Retrieve the question bank
     const {

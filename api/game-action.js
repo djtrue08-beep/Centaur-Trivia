@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     if (re) throw re;
     if (!room || room.status !== 'playing') return json(res, 409, { error: 'Game is not playing' });
     const number = room.current_question_number;
-    const total = room.mode === 'full' ? 30 : 15;
+    const total = room.mode === 'full' ? 31 : 16;
     if (action === 'finish') {
       if (room.game_phase !== 'answering') return json(res, 409, { error: 'Answers are not open' });
       const { data: assigned, error: ae } = await s.from('game_questions')
@@ -34,12 +34,16 @@ export default async function handler(req, res) {
         return json(res, 409, { error: 'Timer still running' });
       // Claim this reveal once, preventing duplicate scoring on repeat requests.
       const { data: claimed, error: ue } = await s.from('game_rooms')
-        .update({ game_phase: 'reveal' }).eq('id', room.id)
+        .update({ game_phase: 'reveal', question_ends_at: new Date().toISOString() }).eq('id', room.id)
         .eq('game_phase', 'answering').eq('current_question_number', number)
         .select('id').maybeSingle();
       if (ue) throw ue;
       if (!claimed) return json(res, 409, { error: 'Already revealed' });
-      const points = Math.ceil(number / 5); // 1, 2, 3 ... points per correct answer
+      const points = number === total ? 500 : (
+        room.mode === 'full'
+          ? [100, 100, 200, 200, 300, 300][Math.floor((number - 1) / 5)]
+          : [100, 200, 300][Math.floor((number - 1) / 5)]
+      );
       const correct = answers.filter(a => a.selected_answer === question.correct_answer);
       if (correct.length) {
         const ids = correct.map(a => a.player_id);
@@ -62,11 +66,11 @@ export default async function handler(req, res) {
     let nextNumber = number;
     let finished = false;
     if (phase === 'reveal') {
-      if (number % 5 === 0) nextPhase = 'leaderboard';
+      if (number === total) { nextPhase = 'finished'; finished = true; }
+      else if (number % 5 === 0) nextPhase = 'leaderboard';
       else { nextPhase = 'question'; nextNumber++; }
     } else if (phase === 'leaderboard') {
-      if (number === total) { nextPhase = 'finished'; finished = true; }
-      else if (room.mode === 'full' && number === 15) nextPhase = 'intermission';
+      if (room.mode === 'full' && number === 15) nextPhase = 'intermission';
       else { nextPhase = 'question'; nextNumber++; }
     } else {
       nextPhase = 'question'; nextNumber++;
@@ -77,7 +81,7 @@ export default async function handler(req, res) {
         status: finished ? 'finished' : 'playing',
         current_question_number: nextNumber,
         question_started_at: null,
-        question_ends_at: null
+        question_ends_at: ['leaderboard', 'reveal'].includes(nextPhase) ? new Date().toISOString() : null
       }).eq('id', room.id).eq('game_phase', phase)
       .eq('current_question_number', number).select('id').maybeSingle();
     if (ue) throw ue;

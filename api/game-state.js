@@ -22,15 +22,16 @@ export default async function handler(req, res) {
     const phase = room.game_phase || 'lobby';
     const result = {
       status: room.status, phase, mode: room.mode, number,
-      round: number ? Math.ceil(number / 5) : 0,
-      total: roundCount * 5, roundCount,
+      round: number ? Math.min(roundCount, Math.ceil(number / 5)) : 0,
+      isFinal: number === roundCount * 5 + 1,
+      total: roundCount * 5 + 1, roundCount,
       endsAt: room.question_ends_at,
       playerCount: players.length,
       answeredCount: 0,
       leaderboard: ['leaderboard', 'finished'].includes(phase)
         ? players.map(p => ({ name: p.name, score: p.score || 0 })) : undefined
     };
-    if (room.status !== 'playing' || !number) return json(res, 200, result);
+    if (!number || (room.status !== 'playing' && phase !== 'finished')) return json(res, 200, result); 
     const { data: assigned, error: ae } = await s.from('game_questions')
       .select('question_id').eq('room_id', room.id).eq('question_number', number).maybeSingle();
     if (ae) throw ae;
@@ -45,7 +46,7 @@ export default async function handler(req, res) {
     result.answeredCount = answers.length;
     result.question = question.question_text;
     result.category = question.category;
-    result.choices = (isHost || phase !== 'question') ? question.choices : [];
+    result.choices = (isHost || ['answering', 'reveal', 'leaderboard', 'intermission', 'finished'].includes(phase)) ? question.choices : [];
     if (['reveal', 'leaderboard', 'intermission', 'finished'].includes(phase)) {
       result.correctAnswer = question.correct_answer;
     }
