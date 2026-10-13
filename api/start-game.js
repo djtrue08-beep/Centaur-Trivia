@@ -197,9 +197,13 @@ export default async function handler(req, res) {
       error: startError
     } = await supabase
       .from('game_rooms')
-      .update({
-        status: 'playing'
-      })
+  .update({
+  status: 'playing',
+  current_question_number: 1,
+  game_phase: 'question',
+  question_started_at: null,
+  question_ends_at: null
+})
       .eq('id', room.id)
       .eq('status', 'waiting')
       .select('id')
