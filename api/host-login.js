@@ -1,0 +1,3 @@
+import crypto from 'node:crypto';
+import {body,json,sign,secureCookie,requirePost} from './_shared.js';
+export default function handler(req,res){if(!requirePost(req,res))return;const supplied=String(body(req).password||'');const expected=process.env.HOST_PASSWORD||'';if(!expected||!process.env.SESSION_SECRET)return json(res,503,{error:'Host login not configured'});const a=crypto.createHash('sha256').update(supplied).digest();const b=crypto.createHash('sha256').update(expected).digest();if(!crypto.timingSafeEqual(a,b))return json(res,401,{error:'Incorrect password'});const expires=Date.now()+8*3600*1000;res.setHeader('Set-Cookie',secureCookie('centaur_host',`${expires}.${sign(String(expires))}`,8*3600));json(res,200,{ok:true})}
