@@ -12,7 +12,6 @@
   <h1>CENTAUR <span>TRIVIA</span></h1>
   <h2>Host Arena · <span id="modeLabel">Quick Game</span></h2>
   <div id="setupControls" class="host-toolbar">
-    <button id="fullscreenToggle" class="outline compact" type="button">FULLSCREEN</button>
     <button id="voiceToggle" class="outline compact" type="button">VOICE ON</button>
     <button id="settingsToggle" class="outline compact" type="button">⚙ OPTIONS</button>
   </div>
@@ -57,19 +56,30 @@
     <button id="create">CREATE ROOM</button>
     <button class="outline" id="logout">LOG OUT</button>
   </section>
-  <section id="lobbyPanel" class="hidden">
-    <div class="card">
-      <div class="eyebrow">JOIN THE ARENA</div>
-      <div id="roomCode" class="room-code">----</div>
-      <div class="qr" id="qr"></div>
-      <p><a id="joinLink" href="/join.html">Player join link</a></p>
-      <button class="outline" id="copy">COPY JOIN LINK</button>
+  <section id="lobbyPanel" class="hidden arena-lobby">
+    <div class="lobby-columns">
+      <div class="card lobby-join">
+        <div class="eyebrow">JOIN THE ARENA</div>
+        <div id="roomCode" class="room-code">----</div>
+        <div class="qr" id="qr"></div>
+        <a id="joinLink" class="lobby-link" href="/join.html">Player join link</a>
+        <button class="outline lobby-copy" id="copy" type="button">COPY JOIN LINK</button>
+        <div class="mode-title">SELECT GAME MODE</div>
+        <div class="mode-buttons" role="group" aria-label="Game mode">
+          <button id="quickMode" type="button" class="mode-button selected" aria-pressed="true">QUICK GAME</button>
+          <button id="fullMode" type="button" class="mode-button" aria-pressed="false">FULL GAME</button>
+        </div>
+        <select id="lobbyMode" class="hidden" aria-label="Selected game mode">
+          <option value="quick">Quick Game</option>
+          <option value="full">Full Game</option>
+        </select>
+        <button id="start" type="button" disabled>START GAME</button>
+      </div>
+      <div class="card lobby-players">
+        <h3>PLAYERS <span id="count">0</span> / 60</h3>
+        <div id="players" class="player-grid">Waiting for players...</div>
+      </div>
     </div>
-    <div class="card">
-      <h3>PLAYERS <span id="count">0</span> / 60</h3>
-      <div id="players" class="player-grid">Waiting for players...</div>
-    </div>
-    <div class="mode-switch"><label for="lobbyMode">GAME MODE</label><select id="lobbyMode"><option value="quick">Quick Game</option><option value="full">Full Game</option></select></div><button id="start" disabled>START GAME</button>
   </section>
   <div id="roundCurtain" class="round-curtain hidden" aria-live="polite">
     <div class="curtain-rays"></div>
@@ -97,7 +107,11 @@
     <h2 id="boardTitle">LEADERBOARD</h2>
     <p id="boardSubtitle">AFTER THE ROUND</p>
     <div id="boardRows" class="board-rows"></div>
-    <p id="boardFooter" class="muted"></p><button id="playAgain" type="button" class="hidden">PLAY AGAIN · SAME ROOM</button>
+    <p id="boardFooter" class="muted"></p>
+    <div id="championActions" class="champion-actions hidden">
+      <button id="playAgain" type="button">PLAY AGAIN</button>
+      <button id="returnLobby" type="button" class="outline">LOBBY</button>
+    </div>
   </section>
   <p id="message" class="message" role="status"></p>
 </main>
