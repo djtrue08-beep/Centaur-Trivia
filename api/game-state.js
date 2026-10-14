@@ -43,7 +43,7 @@ export default async function handler(req, res) {
       .select('player_id,selected_answer').eq('room_id', room.id).eq('question_id', question.id);
     if (ansError) throw ansError;
     result.answeredCount = answers.length;
-    result.question = question.question_text;
+    result.question = (!isHost && ['intro', 'question'].includes(phase)) ? '' : question.question_text;
     result.category = question.category;
     result.choices = (isHost || phase !== 'question') ? question.choices : [];
     if (['reveal', 'leaderboard', 'intermission', 'finished'].includes(phase)) {

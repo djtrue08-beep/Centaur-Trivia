@@ -200,7 +200,7 @@ export default async function handler(req, res) {
   .update({
   status: 'playing',
   current_question_number: 1,
-  game_phase: 'question',
+  game_phase: 'intro',
   question_started_at: null,
   question_ends_at: null
 })

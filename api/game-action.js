@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   const { code: rawCode, action } = body(req);
   const code = String(rawCode || '').trim().toUpperCase();
   if (!/^[A-HJ-NP-Z2-9]{6}$/.test(code)) return json(res, 400, { error: 'Invalid code' });
-  if (!['finish', 'next'].includes(action)) return json(res, 400, { error: 'Invalid action' });
+  if (!['finish', 'next', 'begin'].includes(action)) return json(res, 400, { error: 'Invalid action' });
   try {
     const s = db();
     const { data: room, error: re } = await s.from('game_rooms')
@@ -14,6 +14,16 @@ export default async function handler(req, res) {
       .eq('room_code', code).maybeSingle();
     if (re) throw re;
     if (!room || room.status !== 'playing') return json(res, 409, { error: 'Game is not playing' });
+    if (action === 'begin') {
+      if (room.game_phase !== 'intro') return json(res, 409, { error: 'Introduction already completed' });
+      const { data: changed, error: beginError } = await s.from('game_rooms')
+        .update({ game_phase: 'question' })
+        .eq('id', room.id).eq('game_phase', 'intro')
+        .select('id').maybeSingle();
+      if (beginError) throw beginError;
+      if (!changed) return json(res, 409, { error: 'Game already started' });
+      return json(res, 200, { ok: true, phase: 'question' });
+    }
     const number = room.current_question_number;
     const total = room.mode === 'full' ? 30 : 15;
     if (action === 'finish') {
