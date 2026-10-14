@@ -34,7 +34,7 @@
     <input id="voiceRate" type="range" min="0.6" max="1.4" step="0.05" value="0.92">
     <label for="voicePitch">Pitch <output id="pitchValue">0.83</output></label>
     <input id="voicePitch" type="range" min="0.5" max="1.5" step="0.05" value="0.83">
-    <div class="settings-actions"><button id="testVoice" type="button" class="outline">TEST VOICE</button><button id="saveVoice" type="button">SAVE VOICE</button></div>
+    <div class="settings-actions"><button id="testVoice" type="button" class="outline">TEST VOICE</button><button id="saveVoice" type="button">SAVE CHANGES</button><button id="cancelVoice" type="button" class="outline">CANCEL</button></div>
     <p class="muted">Only voices Chrome exposes on this device will appear.</p>
   </details>
   <section id="introPanel" class="card hidden">
@@ -60,7 +60,7 @@
   <section id="lobbyPanel" class="hidden">
     <div class="card">
       <div class="eyebrow">JOIN THE ARENA</div>
-      <div id="roomCode" class="room-code">------</div>
+      <div id="roomCode" class="room-code">----</div>
       <div class="qr" id="qr"></div>
       <p><a id="joinLink" href="/join.html">Player join link</a></p>
       <button class="outline" id="copy">COPY JOIN LINK</button>
@@ -69,7 +69,7 @@
       <h3>PLAYERS <span id="count">0</span> / 60</h3>
       <div id="players" class="player-grid">Waiting for players...</div>
     </div>
-    <button id="start" disabled>START GAME</button>
+    <div class="mode-switch"><label for="lobbyMode">GAME MODE</label><select id="lobbyMode"><option value="quick">Quick Game</option><option value="full">Full Game</option></select></div><button id="start" disabled>START GAME</button>
   </section>
   <div id="roundCurtain" class="round-curtain hidden" aria-live="polite">
     <div class="curtain-rays"></div>
@@ -85,7 +85,7 @@
     <p id="category" class="muted"></p>
     <div id="questionText" class="big-question"></div>
     <div id="hostChoices" class="host-choices"></div>
-    <div id="clock" class="clock"></div>
+    <div id="clock" class="gold-clock hidden" aria-label="Countdown"><div class="gold-clock-inner"><span id="clockNumber">12</span><small>SECONDS</small></div></div>
     <p id="progress" class="muted"></p>
     <div id="leaderboard" class="hidden"></div>
     <button id="gameButton" class="hidden">START TIMER</button>
@@ -97,7 +97,7 @@
     <h2 id="boardTitle">LEADERBOARD</h2>
     <p id="boardSubtitle">AFTER THE ROUND</p>
     <div id="boardRows" class="board-rows"></div>
-    <p id="boardFooter" class="muted"></p>
+    <p id="boardFooter" class="muted"></p><button id="playAgain" type="button" class="hidden">PLAY AGAIN · SAME ROOM</button>
   </section>
   <p id="message" class="message" role="status"></p>
 </main>
