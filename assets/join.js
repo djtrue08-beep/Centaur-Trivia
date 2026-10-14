@@ -92,14 +92,14 @@ function renderGame(data) {
       button.textContent = '⭐ ' + choice;
       button.disabled = data.myAnswer !== null || remaining === 0;
       if (data.myAnswer === index) button.classList.add('chosen');
-      button.onclick = () => submit(index);
+      button.onclick = () => submit(data.choiceIndices?.[index] ?? index);
       $('answerChoices').append(button);
     });
   }
   if (data.phase === 'reveal') {
     $('playerHeading').textContent = 'ANSWER REVEAL';
     const correct = data.choices?.[data.correctAnswer];
-    $('answerStatus').textContent = '⭐ Correct answer: ' + correct;
+    $('answerStatus').textContent = data.myAnswer === data.correctAnswer ? '✓ Correct!' : 'Correct answer: ' + correct;
   }
   if (data.phase === 'leaderboard' || data.phase === 'finished') {
     $('playerHeading').textContent = data.phase === 'finished' ? 'GAME COMPLETE' : 'ROUND COMPLETE';

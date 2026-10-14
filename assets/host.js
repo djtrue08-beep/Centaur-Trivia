@@ -132,27 +132,20 @@ function showIntro() {
   lastPhaseKey = '';
   narratedPhaseKey = '';
   show('introPanel');
-  $('introHeading').textContent = 'WELCOME TO CENTAUR TRIVIA';
-  $('introText').textContent = 'Crixus welcomes the challengers!';
+  $('introHeading').textContent = 'CENTAUR TRIVIA';
+  $('introText').textContent = 'WELCOME TO THE ARENA';
   $('introContinue').disabled = true;
-  const roundCount = mode === 'full' ? 6 : 3;
-  const opening = 'Welcome, challengers, to Centaur Trivia! I am Crixus, master of this arena. Prepare your minds, for the contest is about to begin!';
-  const rules = `Before the first round, heed these rules. Each player competes alone. Each question has four possible answers, but only one is correct. Select your answer on your phone before time expires. Once selected, your answer is locked. In round one, each correct answer earns one point. In round two, two points. Each new round adds one point per correct answer, all the way through round ${roundCount}. Wrong answers earn zero. Your standings appear after every round. Now, warriors, prepare for round one!`;
+  const opening = 'Welcome, mortals, to Centaur Trivia! I am Crixus, master of this arena. Listen well! I shall read each question. Choose one of four answers on your phone before time runs out. Once chosen, your answer is locked. Each correct answer earns points, and I shall announce the stakes before each round. Now, let the battle of minds begin!';
   const ready = () => {
     if (!introActive || sequence !== introSequenceToken) return;
-    $('introHeading').textContent = 'ROUND ONE';
-    $('introText').textContent = 'THE CHALLENGE BEGINS';
+    $('introHeading').textContent = 'CENTAUR TRIVIA';
+    $('introText').textContent = 'THE ARENA AWAKENS';
     $('introContinue').disabled = false; // Manual fallback if network advancement fails.
     setTimeout(() => {
       if (introActive && sequence === introSequenceToken) beginFirstRound();
     }, 2500);
   };
-  CrixusVoice.speak(opening, () => {
-    if (!introActive) return;
-    $('introHeading').textContent = 'HOW TO PLAY & SCORING';
-    $('introText').textContent = `Four choices per question. One correct answer. Round 1 = 1 point per correct answer; Round 2 = 2; each subsequent round increases by one. Wrong answers = 0. Leaderboard after every round.`;
-    CrixusVoice.speak(rules, ready);
-  });
+  CrixusVoice.speak(opening, ready);
   if (!CrixusVoice.enabled) ready();
 }
 function beginFirstRound() {
@@ -234,37 +227,73 @@ function startQuestionTimer(key) {
   gameAction('timer');
 }
 
+const revealLines = [
+  'Knowledge favors the worthy!',
+  'Some of you have pleased the gods. Others, not so much.',
+  'The arena rewards sharp minds!',
+  'Ha! That separated warriors from spectators!',
+  'The gods have spoken. Onward!',
+  'Impressive. Perhaps there is hope for you yet.',
+  'A simple challenge. Or so I thought!',
+  'I expected brilliance. Some of you delivered!',
+  'The crown is not won by guessing wildly!',
+  'Another test conquered. Or perhaps endured.',
+  'Your wisdom has been weighed!',
+  'Not everyone can command the arena!',
+  'Even the mighty must learn!',
+  'The truth stands before you!',
+  'That one demanded a worthy mind!',
+  'Somewhere, a scholar just sighed.',
+  'An admirable effort, mortals!',
+  'The arena grows more interesting!',
+  'Fortune favors the prepared!',
+  'Onward, before the gods grow bored!'
+];
+let lastRevealLine = -1;
+function randomRevealLine() {
+  let index = Math.floor(Math.random() * (revealLines.length - 1));
+  if (index >= lastRevealLine) index++;
+  lastRevealLine = index;
+  return revealLines[index];
+}
+function roundPoints(round) {
+  return mode === 'quick' ? round * 100 : Math.ceil(round / 2) * 100;
+}
 function narratePhase(data, key) {
   if (narratedPhaseKey === key) return;
   narratedPhaseKey = key;
   CrixusVoice.cancel();
   voiceFinished = false;
   if (data.phase === 'question') {
-    if (data.number > 1 && (data.number - 1) % 5 === 0) {
-      CrixusVoice.speak(`Round ${data.round} begins! A new challenge awaits!`, () => {
-        if (lastPhaseKey === key) CrixusVoice.speak(data.question || '', () => { voiceFinished = true; startQuestionTimer(key); });
+    const isFinal = data.number === data.total;
+    const isRoundStart = (data.number - 1) % 5 === 0;
+    const readQuestion = () => {
+      if (lastPhaseKey !== key) return;
+      $('roundCurtain').classList.add('hidden');
+      CrixusVoice.speak(data.question || '', () => {
+        voiceFinished = true;
+        startQuestionTimer(key);
       });
-      return;
+    };
+    if (isFinal) {
+      CrixusVoice.speak('Mortals! The final challenge has arrived. Five hundred points await those who answer correctly. Fail, and you earn nothing! Prove your worth!', readQuestion);
+    } else if (isRoundStart) {
+      CrixusVoice.speak(`Round ${data.round}! Each correct answer earns ${roundPoints(data.round)} points. Let the contest begin!`, readQuestion);
+    } else {
+      readQuestion();
     }
-    CrixusVoice.speak(data.question || '', () => {
-      voiceFinished = true;
-      startQuestionTimer(key);
-    });
   } else if (data.phase === 'reveal') {
-    const answer = data.choices?.[data.correctAnswer];
-    if (answer !== undefined) CrixusVoice.speak(`The correct answer is ${answer}.`);
+    CrixusVoice.speak(randomRevealLine(), () => scheduleRevealAdvance(key));
   } else if (data.phase === 'leaderboard') {
-    CrixusVoice.speak(`Round ${data.round} is complete. Behold the leaderboard! Let us see who commands the arena.`);
+    CrixusVoice.speak(`Round ${data.round} is complete. Behold the standings! The arena remembers its champions.`);
   } else if (data.phase === 'intermission') {
     CrixusVoice.speak('Even champions require a moment of rest. We shall resume shortly.');
   } else if (data.phase === 'finished') {
     const highest = data.leaderboard?.[0]?.score;
-    const champions = (data.leaderboard || []).filter(player => player.score === highest);
-    const names = champions.map(player => player.name);
-    const announcement = names.length > 1
-      ? `The contest is complete! We have a tie! ${names.join(' and ')} share the crown as champions of Centaur Trivia!`
-      : `The contest is complete! All hail ${names[0] || 'our champion'}, victor of Centaur Trivia!`;
-    CrixusVoice.speak(announcement);
+    const count = (data.leaderboard || []).filter(p => p.score === highest).length;
+    CrixusVoice.speak(count === 1
+      ? 'Behold! One champion stands victorious. The crown is yours, mortal!'
+      : `By the gods! The crown shall be shared by ${count} champions today! The arena has witnessed an extraordinary tie!`);
   }
 }
 
@@ -277,7 +306,7 @@ function scheduleRevealAdvance(key) {
     if (lastPhaseKey === key && !actionBusy) {
       gameAction('next');
     }
-  }, 5000);
+  }, 3200);
 }
 
 function scheduleLeaderboardAdvance(key) {
@@ -294,12 +323,11 @@ function showRoundCurtain(data, key) {
   roundCurtainKey = key;
   clearTimeout(roundCurtainTimeout);
   const curtain = $('roundCurtain');
-  $('curtainRound').textContent = `ROUND ${data.round}`;
-  $('curtainSubtitle').textContent = data.round === 1 ? 'THE ARENA OPENS' : 'THE CHALLENGE CONTINUES';
+  $('curtainRound').textContent = data.number === data.total ? 'FINAL QUESTION' : `ROUND ${data.round}`;
+  $('curtainSubtitle').textContent = data.number === data.total ? 'THE MOMENT OF TRUTH' : data.round === 1 ? 'THE ARENA OPENS' : 'THE CHALLENGE CONTINUES';
   curtain.classList.remove('hidden');
-  roundCurtainTimeout = setTimeout(() => {
-    if (roundCurtainKey === key) curtain.classList.add('hidden');
-  }, 3000);
+  // Keep the cinematic title visible until Crixus finishes the announcement.
+  // The question narration callback dismisses the curtain.
 }
 
 function renderGame(data) {
@@ -318,7 +346,7 @@ function renderGame(data) {
     void $('gamePanel').offsetWidth;
     $('gamePanel').classList.add('phase-enter');
     say('');
-    if (data.phase === 'question' && (data.number - 1) % 5 === 0) {
+    if (data.phase === 'question' && ((data.number - 1) % 5 === 0 || data.number === data.total)) {
       showRoundCurtain(data, key);
     } else {
       $('roundCurtain').classList.add('hidden');
@@ -359,9 +387,12 @@ function renderGame(data) {
     }
   }
   if (data.phase === 'reveal') {
-    $('gameHeading').textContent = 'CORRECT ANSWER REVEALED';
-    $('clock').textContent = 'Next screen in 5 seconds';
-    scheduleRevealAdvance(key);
+    $('gameHeading').textContent = 'THE CORRECT ANSWER';
+    $('questionText').textContent = '';
+    $('category').textContent = '';
+    $('progress').textContent = '';
+    $('clock').textContent = ''; 
+    if (!CrixusVoice.enabled) scheduleRevealAdvance(key);
   }
   if (data.phase === 'leaderboard') {
     renderLeaderboard(data);
@@ -407,3 +438,13 @@ async function refresh() {
   } catch (e) { say(e.message); }
   finally { refreshing = false; }
 }
+
+$('fullscreenToggle').onclick = async () => {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else await document.documentElement.requestFullscreen();
+  } catch (e) { say('Fullscreen unavailable: ' + e.message); }
+};
+document.addEventListener('fullscreenchange', () => {
+  $('fullscreenToggle').textContent = document.fullscreenElement ? 'EXIT FULLSCREEN' : 'ENTER FULLSCREEN';
+});
