@@ -52,7 +52,7 @@ export default async function handler(req, res) {
     if (visibleIndices.length > 4) {
       const incorrect = visibleIndices.filter(index => index !== correctIndex);
       // Stable per-question omission; every device sees the same four choices.
-      const omit = incorrect[question.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % incorrect.length];
+      const omit = incorrect[String(question.id).split('').reduce((a, c) => a + c.charCodeAt(0), 0) % incorrect.length];
       visibleIndices.splice(visibleIndices.indexOf(omit), 1);
     }
     result.choices = (isHost || phase !== 'question')
