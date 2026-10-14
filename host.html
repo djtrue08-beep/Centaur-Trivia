@@ -24,6 +24,12 @@
       <p>All players are waiting for the host.</p>
       <button id="resumeGame" type="button">▶ RESUME GAME</button>
       <button id="pauseOptions" class="outline" type="button">⚙ OPTIONS</button>
+      <button id="endSession" class="end-session-button" type="button">■ END SESSION</button>
+      <div id="endSessionConfirm" class="end-session-confirm hidden" role="group" aria-label="Confirm end session">
+        <p>End this game and return everyone to the lobby? Current scores and progress will be lost.</p>
+        <button id="confirmEndSession" class="end-session-button" type="button">YES, END SESSION</button>
+        <button id="cancelEndSession" class="outline" type="button">CANCEL</button>
+      </div>
     </div>
   </div>
   <details id="voiceSettings" class="voice-settings card hidden">
