@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   if (!host(req)) return json(res, 401, { error: 'Host login required' });
   const { code: rawCode, paused } = body(req);
   const code = String(rawCode || '').trim().toUpperCase();
-  if (!/^[A-HJ-NP-Z2-9]{6}$/.test(code) || typeof paused !== 'boolean') {
+  if (!/^[A-HJ-NP-Z2-9]{4,6}$/.test(code) || typeof paused !== 'boolean') {
     return json(res, 400, { error: 'Invalid pause request' });
   }
   try {

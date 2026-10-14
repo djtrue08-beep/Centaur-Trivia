@@ -12,10 +12,15 @@ import {
 const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
 function generateRoomCode() {
-  return Array.from(
-    crypto.randomBytes(6),
-    byte => characters[byte % characters.length]
-  ).join('');
+  // Require at least one letter and one number in every new room code.
+  let code;
+  do {
+    code = Array.from(
+      crypto.randomBytes(4),
+      byte => characters[byte % characters.length]
+    ).join('');
+  } while (!/[A-Z]/.test(code) || !/[2-9]/.test(code));
+  return code;
 }
 
 export default async function handler(req, res) {

@@ -81,11 +81,13 @@ export default async function handler(req, res) {
 
   const requestBody = body(req);
 
+  const requestedMode = requestBody.mode;
+
   const roomCode = String(requestBody.code || '')
     .trim()
     .toUpperCase();
 
-  if (!/^[A-HJ-NP-Z2-9]{6}$/.test(roomCode)) {
+  if (!/^[A-HJ-NP-Z2-9]{4,6}$/.test(roomCode)) {
     return json(res, 400, {
       error: 'Invalid room code'
     });
@@ -114,7 +116,7 @@ export default async function handler(req, res) {
       });
     }
 
-    if (!['quick', 'full'].includes(room.mode)) {
+    if (!['quick', 'full'].includes(requestedMode)) {
       return json(res, 400, {
         error: 'Invalid game mode'
       });
@@ -143,7 +145,7 @@ export default async function handler(req, res) {
     }
 
     // Determine the game length
-    const roundCount = room.mode === 'quick' ? 3 : 6;
+    const roundCount = requestedMode === 'quick' ? 3 : 6;
 
     const totalQuestions =
       roundCount * QUESTIONS_PER_ROUND;
@@ -199,6 +201,9 @@ export default async function handler(req, res) {
       .from('game_rooms')
   .update({
   status: 'playing',
+  mode: requestedMode,
+  is_paused: false,
+  pause_remaining_ms: null,
   current_question_number: 1,
   game_phase: 'intro',
   question_started_at: null,

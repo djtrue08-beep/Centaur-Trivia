@@ -28,7 +28,7 @@ export default async function handler(req, res) {
 
   // Validate the room code and player name
   if (
-    !/^[A-HJ-NP-Z2-9]{6}$/.test(roomCode) ||
+    !/^[A-HJ-NP-Z2-9]{4,6}$/.test(roomCode) ||
     playerName.length < 1 ||
     playerName.length > 24
   ) {

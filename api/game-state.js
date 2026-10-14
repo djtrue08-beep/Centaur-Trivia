@@ -3,7 +3,7 @@ import { db, host, player, json, error } from './_shared.js';
 export default async function handler(req, res) {
   if (req.method !== 'GET') return json(res, 405, { error: 'Method not allowed' });
   const code = String(req.query.code || '').trim().toUpperCase();
-  if (!/^[A-HJ-NP-Z2-9]{6}$/.test(code)) return json(res, 400, { error: 'Invalid code' });
+  if (!/^[A-HJ-NP-Z2-9]{4,6}$/.test(code)) return json(res, 400, { error: 'Invalid code' });
   try {
     const s = db();
     const { data: room, error: re } = await s.from('game_rooms')
@@ -17,6 +17,9 @@ export default async function handler(req, res) {
     const { data: players, error: pe } = await s.from('players')
       .select('id,name,score').eq('room_id', room.id).order('score', { ascending: false });
     if (pe) throw pe;
+    if (!isHost && !players.some(p => p.id === session.id)) {
+      return json(res, 403, { error: 'You were removed from this room' });
+    }
     const roundCount = room.mode === 'full' ? 6 : 3;
     const number = room.current_question_number || 0;
     const phase = room.game_phase || 'lobby';

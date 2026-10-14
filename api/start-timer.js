@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   if (!requirePost(req, res)) return;
   if (!host(req)) return json(res, 401, { error: 'Host login required' });
   const code = String(body(req).code || '').trim().toUpperCase();
-  if (!/^[A-HJ-NP-Z2-9]{6}$/.test(code)) return json(res, 400, { error: 'Invalid room code' });
+  if (!/^[A-HJ-NP-Z2-9]{4,6}$/.test(code)) return json(res, 400, { error: 'Invalid room code' });
   try {
     const s = db();
     const { data: room, error: re } = await s.from('game_rooms')
