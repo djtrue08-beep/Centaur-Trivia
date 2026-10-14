@@ -68,11 +68,15 @@ function renderGame(data) {
   $('playerGame').classList.remove('hidden');
   $('playerMeta').textContent = `ROUND ${data.round} · QUESTION ${data.number}/${data.total}`;
   $('playerHeading').textContent = 'CHOOSE YOUR ANSWER';
-  $('playerQuestion').textContent = data.question || '';
+  $('playerQuestion').textContent = ['question', 'intro'].includes(data.phase) ? '' : (data.question || '');
   $('playerLeaderboard').replaceChildren();
   $('answerChoices').replaceChildren();
   $('playerClock').textContent = '';
   $('answerStatus').textContent = '';
+  if (data.phase === 'intro') {
+    $('playerHeading').textContent = 'WELCOME TO THE ARENA';
+    $('answerStatus').textContent = 'Crixus is explaining the rules. Get ready!';
+  }
   if (data.phase === 'question') {
     $('playerHeading').textContent = 'GET READY';
     $('answerStatus').textContent = 'Waiting for Crixus to finish the question...';

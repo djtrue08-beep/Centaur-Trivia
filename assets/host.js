@@ -23,7 +23,7 @@ async function api(path, options = {}) {
 }
 
 function show(id) {
-  ['loginPanel', 'setupPanel', 'lobbyPanel', 'gamePanel'].forEach(panel => {
+  ['loginPanel', 'setupPanel', 'lobbyPanel', 'introPanel', 'gamePanel'].forEach(panel => {
     $(panel).classList.toggle('hidden', panel !== id);
   });
 }
@@ -122,6 +122,8 @@ let introComplete = false;
 function showIntro() {
   introActive = true;
   introComplete = false;
+  lastPhaseKey = '';
+  narratedPhaseKey = '';
   show('introPanel');
   $('introHeading').textContent = 'WELCOME TO CENTAUR TRIVIA';
   $('introText').textContent = 'Crixus welcomes the challengers!';
@@ -145,7 +147,8 @@ $('introContinue').onclick = () => {
   introActive = false;
   introComplete = true;
   CrixusVoice.cancel();
-  refresh();
+  $('introContinue').disabled = true;
+  gameAction('begin');
 };
 $('voiceToggle').onclick = () => {
   CrixusVoice.setEnabled(!CrixusVoice.enabled);
@@ -178,7 +181,7 @@ async function gameAction(action) {
       body: JSON.stringify(action === 'timer' ? { code } : { code, action })
     });
     await refresh();
-  } catch (e) { say(e.message); }
+  } catch (e) { say(e.message); if (action === 'begin') $('introContinue').disabled = false; }
   finally { actionBusy = false; $('gameButton').disabled = false; }
 }
 
@@ -265,7 +268,7 @@ function scheduleRevealAdvance(key) {
 }
 
 function renderGame(data) {
-  if (introActive || !introComplete) return;
+  if (introActive || !introComplete || data.phase === 'intro') return;
   show('gamePanel');
   const key = `${data.number}:${data.phase}`;
   if (key !== lastPhaseKey) {
@@ -353,7 +356,7 @@ async function refresh() {
     });
     $('start').disabled = room.count === 0 || room.status !== 'waiting';
     if (room.status !== 'waiting') {
-      if (!introActive && !introComplete) introComplete = true;
+      if (!introActive && !introComplete && room.status === 'finished') introComplete = true;
       const state = await api('game-state?code=' + encodeURIComponent(code));
       renderGame(state);
     }
