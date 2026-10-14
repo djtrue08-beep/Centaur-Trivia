@@ -45,14 +45,27 @@ export default async function handler(req, res) {
     result.answeredCount = answers.length;
     result.question = (!isHost && ['intro', 'question'].includes(phase)) ? '' : question.question_text;
     result.category = question.category;
-    result.choices = (isHost || phase !== 'question') ? question.choices : [];
-    if (['reveal', 'leaderboard', 'intermission', 'finished'].includes(phase)) {
-      result.correctAnswer = question.correct_answer;
+    // Present four options without changing stored answer indices or the question bank.
+    const originalChoices = question.choices || [];
+    const correctIndex = question.correct_answer;
+    const visibleIndices = originalChoices.map((_, index) => index);
+    if (visibleIndices.length > 4) {
+      const incorrect = visibleIndices.filter(index => index !== correctIndex);
+      // Stable per-question omission; every device sees the same four choices.
+      const omit = incorrect[question.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % incorrect.length];
+      visibleIndices.splice(visibleIndices.indexOf(omit), 1);
     }
+    result.choices = (isHost || phase !== 'question')
+      ? visibleIndices.map(index => originalChoices[index]) : [];
+    result.choiceIndices = (isHost || phase === 'answering') ? visibleIndices : [];
+    result.correctAnswer = ['reveal', 'leaderboard', 'intermission', 'finished'].includes(phase)
+      ? visibleIndices.indexOf(correctIndex) : undefined;
+
     if (isHost) {
       result.correctCount = answers.filter(a => a.selected_answer === question.correct_answer).length;
     } else {
-      result.myAnswer = answers.find(a => a.player_id === session.id)?.selected_answer ?? null;
+      const originalAnswer = answers.find(a => a.player_id === session.id)?.selected_answer;
+      result.myAnswer = originalAnswer === undefined ? null : visibleIndices.indexOf(originalAnswer);
     }
     return json(res, 200, result);
   } catch (e) { return error(res, e); }

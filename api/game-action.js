@@ -49,7 +49,9 @@ export default async function handler(req, res) {
         .select('id').maybeSingle();
       if (ue) throw ue;
       if (!claimed) return json(res, 409, { error: 'Already revealed' });
-      const points = Math.ceil(number / 5); // 1, 2, 3 ... points per correct answer
+      const round = Math.ceil(number / 5);
+      const points = number === total ? 500 :
+        room.mode === 'quick' ? round * 100 : Math.ceil(round / 2) * 100;
       const correct = answers.filter(a => a.selected_answer === question.correct_answer);
       if (correct.length) {
         const ids = correct.map(a => a.player_id);
