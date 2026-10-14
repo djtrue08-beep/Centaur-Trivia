@@ -10,10 +10,10 @@ export default async function handler(req, res) {
   try {
     const s = db();
     const { data: room, error: re } = await s.from('game_rooms')
-      .select('id,status,game_phase,current_question_number,question_ends_at')
+      .select('id,status,game_phase,current_question_number,question_ends_at,is_paused')
       .eq('id', session.room).maybeSingle();
     if (re) throw re;
-    if (!room || room.status !== 'playing' || room.game_phase !== 'answering' ||
+    if (!room || room.status !== 'playing' || room.game_phase !== 'answering' || room.is_paused ||
         !room.question_ends_at || Date.now() >= Date.parse(room.question_ends_at))
       return json(res, 409, { error: 'Answer window is closed' });
     const { data: member, error: me } = await s.from('players')

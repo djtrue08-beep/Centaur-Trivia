@@ -10,10 +10,11 @@ export default async function handler(req, res) {
   try {
     const s = db();
     const { data: room, error: re } = await s.from('game_rooms')
-      .select('id,status,mode,game_phase,current_question_number,question_ends_at')
+      .select('id,status,mode,game_phase,current_question_number,question_ends_at,is_paused')
       .eq('room_code', code).maybeSingle();
     if (re) throw re;
     if (!room || room.status !== 'playing') return json(res, 409, { error: 'Game is not playing' });
+    if (room.is_paused) return json(res, 409, { error: 'Game is paused' });
     if (action === 'begin') {
       if (room.game_phase !== 'intro') return json(res, 409, { error: 'Introduction already completed' });
       const { data: changed, error: beginError } = await s.from('game_rooms')
@@ -89,7 +90,8 @@ export default async function handler(req, res) {
         status: finished ? 'finished' : 'playing',
         current_question_number: nextNumber,
         question_started_at: null,
-        question_ends_at: null
+        question_ends_at: null,
+        pause_remaining_ms: null
       }).eq('id', room.id).eq('game_phase', phase)
       .eq('current_question_number', number).select('id').maybeSingle();
     if (ue) throw ue;

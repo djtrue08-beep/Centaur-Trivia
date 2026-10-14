@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   try {
     const s = db();
     const { data: room, error: re } = await s.from('game_rooms')
-      .select('id,mode,status,game_phase,current_question_number,question_ends_at')
+      .select('id,mode,status,game_phase,current_question_number,question_ends_at,is_paused,pause_remaining_ms')
       .eq('room_code', code).maybeSingle();
     if (re) throw re;
     if (!room) return json(res, 404, { error: 'Room not found' });
@@ -25,6 +25,8 @@ export default async function handler(req, res) {
       round: number ? Math.ceil(number / 5) : 0,
       total: roundCount * 5, roundCount,
       endsAt: room.question_ends_at,
+      paused: !!room.is_paused,
+      remainingMs: room.is_paused ? room.pause_remaining_ms : null,
       playerCount: players.length,
       answeredCount: 0,
       leaderboard: ['leaderboard', 'finished'].includes(phase)

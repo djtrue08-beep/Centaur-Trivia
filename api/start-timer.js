@@ -8,9 +8,9 @@ export default async function handler(req, res) {
   try {
     const s = db();
     const { data: room, error: re } = await s.from('game_rooms')
-      .select('id,status,game_phase').eq('room_code', code).maybeSingle();
+      .select('id,status,game_phase,is_paused').eq('room_code', code).maybeSingle();
     if (re) throw re;
-    if (!room || room.status !== 'playing' || room.game_phase !== 'question')
+    if (!room || room.status !== 'playing' || (room.game_phase !== 'question' || room.is_paused))
       return json(res, 409, { error: 'Question is not ready' });
     const now = Date.now();
     const { data, error: ue } = await s.from('game_rooms').update({
