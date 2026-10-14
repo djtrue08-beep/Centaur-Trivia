@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   if (!/^[A-HJ-NP-Z2-9]{4,6}$/.test(code)) {
     return json(res, 400, { error: 'Invalid room code' });
   }
-  if (!['pause', 'replay', 'remove'].includes(operation)) {
+  if (!['pause', 'replay', 'remove', 'end-session'].includes(operation)) {
     return json(res, 400, { error: 'Invalid room operation' });
   }
 
@@ -71,7 +71,11 @@ export default async function handler(req, res) {
       return json(res, 200, { ok: true, paused });
     }
 
-    if (room.status !== 'finished') {
+    if (operation === 'end-session') {
+      if (room.status !== 'playing' || !room.is_paused) {
+        return json(res, 409, { error: 'Pause an active game before ending the session' });
+      }
+    } else if (room.status !== 'finished') {
       return json(res, 409, { error: 'Finish the current game before replaying' });
     }
     // Clear game-specific records, but preserve the room and all player IDs/cookies.
@@ -96,9 +100,9 @@ export default async function handler(req, res) {
         pause_remaining_ms: null
       })
       .eq('id', room.id)
-      .eq('status', 'finished');
+      .eq('status', operation === 'end-session' ? 'playing' : 'finished');
     if (resetError) throw resetError;
-    return json(res, 200, { ok: true, operation: 'replay', roomCode: code });
+    return json(res, 200, { ok: true, operation, roomCode: code });
   } catch (exception) {
     return error(res, exception);
   }
