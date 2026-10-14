@@ -12,6 +12,23 @@
   <h1>CENTAUR <span>TRIVIA</span></h1>
   <h2>Host Arena · <span id="modeLabel">Quick Game</span></h2>
   <button id="voiceToggle" class="outline" type="button">VOICE ON · CLICK TO MUTE</button>
+  <details class="voice-settings card">
+    <summary>🎙 CRIXUS VOICE SETTINGS</summary>
+    <label for="voiceSelect">Available Chromebook voices</label>
+    <select id="voiceSelect"><option value="">System default</option></select>
+    <label for="voiceRate">Speaking speed <output id="rateValue">0.92</output></label>
+    <input id="voiceRate" type="range" min="0.6" max="1.4" step="0.05" value="0.92">
+    <label for="voicePitch">Pitch <output id="pitchValue">0.83</output></label>
+    <input id="voicePitch" type="range" min="0.5" max="1.5" step="0.05" value="0.83">
+    <div class="settings-actions"><button id="testVoice" type="button" class="outline">TEST VOICE</button><button id="saveVoice" type="button">SAVE VOICE</button></div>
+    <p class="muted">Only voices Chrome exposes on this device will appear.</p>
+  </details>
+  <section id="introPanel" class="card hidden">
+    <div class="eyebrow">WELCOME TO THE ARENA</div>
+    <h2 id="introHeading">CRIXUS PRESENTS</h2>
+    <p id="introText" class="big-question"></p>
+    <button id="introContinue" type="button">BEGIN ROUND ONE</button>
+  </section>
   <section id="loginPanel" class="card">
     <h3>HOST ACCESS</h3>
     <form id="loginForm">
