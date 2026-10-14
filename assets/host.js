@@ -10,6 +10,12 @@ let autoTimerKey = '';
 let voiceFinished = false;
 let revealAdvanceTimeout = null;
 let revealAdvanceKey = '';
+let leaderboardAdvanceKey = '';
+let leaderboardAdvanceTimeout = null;
+let roundCurtainKey = '';
+let roundCurtainTimeout = null;
+let introSequenceToken = 0;
+
 const say = text => { $('message').textContent = text; };
 
 async function api(path, options = {}) {
@@ -122,6 +128,7 @@ let introComplete = false;
 function showIntro() {
   introActive = true;
   introComplete = false;
+  const sequence = ++introSequenceToken;
   lastPhaseKey = '';
   narratedPhaseKey = '';
   show('introPanel');
@@ -132,8 +139,13 @@ function showIntro() {
   const opening = 'Welcome, challengers, to Centaur Trivia! I am Crixus, master of this arena. Prepare your minds, for the contest is about to begin!';
   const rules = `Before the first round, heed these rules. Each player competes alone. Each question has four possible answers, but only one is correct. Select your answer on your phone before time expires. Once selected, your answer is locked. In round one, each correct answer earns one point. In round two, two points. Each new round adds one point per correct answer, all the way through round ${roundCount}. Wrong answers earn zero. Your standings appear after every round. Now, warriors, prepare for round one!`;
   const ready = () => {
-    $('introText').textContent = 'Rules complete. The arena awaits!';
-    $('introContinue').disabled = false;
+    if (!introActive || sequence !== introSequenceToken) return;
+    $('introHeading').textContent = 'ROUND ONE';
+    $('introText').textContent = 'THE CHALLENGE BEGINS';
+    $('introContinue').disabled = false; // Manual fallback if network advancement fails.
+    setTimeout(() => {
+      if (introActive && sequence === introSequenceToken) beginFirstRound();
+    }, 2500);
   };
   CrixusVoice.speak(opening, () => {
     if (!introActive) return;
@@ -143,17 +155,18 @@ function showIntro() {
   });
   if (!CrixusVoice.enabled) ready();
 }
-$('introContinue').onclick = () => {
+function beginFirstRound() {
   introActive = false;
   introComplete = true;
   CrixusVoice.cancel();
   $('introContinue').disabled = true;
   gameAction('begin');
-};
+}
+$('introContinue').onclick = beginFirstRound;
 $('voiceToggle').onclick = () => {
   CrixusVoice.setEnabled(!CrixusVoice.enabled);
   $('voiceToggle').textContent = CrixusVoice.enabled ? 'VOICE ON · CLICK TO MUTE' : 'VOICE OFF · CLICK TO ENABLE';
-  if (!CrixusVoice.enabled && introActive) $('introContinue').disabled = false;
+  if (!CrixusVoice.enabled && introActive) { ++introSequenceToken; $('introContinue').disabled = false; beginFirstRound(); }
   if (!CrixusVoice.enabled && voiceFinished === false && lastPhaseKey.endsWith(':question')) {
     voiceFinished = true;
     startQuestionTimer(lastPhaseKey);
@@ -181,7 +194,7 @@ async function gameAction(action) {
       body: JSON.stringify(action === 'timer' ? { code } : { code, action })
     });
     await refresh();
-  } catch (e) { say(e.message); if (action === 'begin') $('introContinue').disabled = false; }
+  } catch (e) { say(e.message); if (action === 'begin') { introActive = true; introComplete = false; show('introPanel'); $('introContinue').disabled = false; } }
   finally { actionBusy = false; $('gameButton').disabled = false; }
 }
 
@@ -267,11 +280,35 @@ function scheduleRevealAdvance(key) {
   }, 5000);
 }
 
+function scheduleLeaderboardAdvance(key) {
+  if (leaderboardAdvanceKey === key) return;
+  clearTimeout(leaderboardAdvanceTimeout);
+  leaderboardAdvanceKey = key;
+  leaderboardAdvanceTimeout = setTimeout(() => {
+    if (lastPhaseKey === key && !actionBusy) gameAction('next');
+  }, 8500);
+}
+
+function showRoundCurtain(data, key) {
+  if (roundCurtainKey === key) return;
+  roundCurtainKey = key;
+  clearTimeout(roundCurtainTimeout);
+  const curtain = $('roundCurtain');
+  $('curtainRound').textContent = `ROUND ${data.round}`;
+  $('curtainSubtitle').textContent = data.round === 1 ? 'THE ARENA OPENS' : 'THE CHALLENGE CONTINUES';
+  curtain.classList.remove('hidden');
+  roundCurtainTimeout = setTimeout(() => {
+    if (roundCurtainKey === key) curtain.classList.add('hidden');
+  }, 3000);
+}
+
 function renderGame(data) {
   if (introActive || !introComplete || data.phase === 'intro') return;
   show('gamePanel');
   const key = `${data.number}:${data.phase}`;
   if (key !== lastPhaseKey) {
+    clearTimeout(leaderboardAdvanceTimeout);
+    leaderboardAdvanceKey = '';
     clearTimeout(revealAdvanceTimeout);
     revealAdvanceTimeout = null;
     revealAdvanceKey = '';
@@ -281,6 +318,11 @@ function renderGame(data) {
     void $('gamePanel').offsetWidth;
     $('gamePanel').classList.add('phase-enter');
     say('');
+    if (data.phase === 'question' && (data.number - 1) % 5 === 0) {
+      showRoundCurtain(data, key);
+    } else {
+      $('roundCurtain').classList.add('hidden');
+    }
   }
   $('gameMeta').textContent = `ROUND ${data.round} OF ${data.roundCount} · QUESTION ${data.number} OF ${data.total}`;
   $('gameHeading').textContent = data.phase === 'finished' ? 'GAME COMPLETE' : 'CENTAUR TRIVIA';
@@ -323,7 +365,9 @@ function renderGame(data) {
   }
   if (data.phase === 'leaderboard') {
     renderLeaderboard(data);
-    button(data.number === data.total ? 'CROWN THE WINNERS' : 'CONTINUE GAME', 'next');
+    $('clock').textContent = 'Next round begins automatically';
+    button(data.number === data.total ? 'CROWN THE WINNERS NOW' : 'CONTINUE NOW', 'next');
+    scheduleLeaderboardAdvance(key);
   }
   if (data.phase === 'intermission') {
     $('gameHeading').textContent = 'INTERMISSION';

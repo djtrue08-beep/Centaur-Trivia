@@ -23,3 +23,22 @@ body::after { content: ""; position: fixed; inset: -70%; pointer-events: none; z
 @keyframes answerGlow { 0% { transform: scale(.93); box-shadow: 0 0 0 #eeb32900; } 65% { transform: scale(1.025); box-shadow: 0 0 35px #eeb32977; } 100% { transform: scale(1); } }
 #gamePanel[data-phase=finished] h2 { animation: answerGlow 1.5s ease-in-out infinite alternate; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }
+
+/* Full-screen host presentation transitions */
+.round-curtain { position:fixed; inset:0; z-index:50; display:grid; place-items:center; overflow:hidden; background:radial-gradient(circle at center,#67401e 0%,#462416 48%,#170d09 100%); }
+.round-curtain:not(.hidden) { animation: curtainAppear .45s ease-out; }
+.curtain-rays { position:absolute; inset:-70%; opacity:.55; background:repeating-conic-gradient(from 0deg,#eeb32938 0deg 8deg,transparent 8deg 25deg); animation:arenaLights 16s linear infinite; }
+.curtain-content { position:relative; padding:35px; border-top:3px solid #eeb329; border-bottom:3px solid #eeb329; width:min(90%,750px); text-shadow:0 4px 15px #000; animation:curtainTitle .8s cubic-bezier(.16,1,.3,1); }
+#curtainRound { font-size:clamp(55px,10vw,110px); font-weight:900; color:#eeb329; margin:8px 0; letter-spacing:5px; }
+#curtainSubtitle { font-size:clamp(19px,3vw,30px); letter-spacing:5px; color:#fff2d0; }
+#introPanel:not(.hidden) { min-height:60vh; display:flex; flex-direction:column; align-items:center; justify-content:center; border:3px solid #eeb329; box-shadow:0 0 60px #af883755,inset 0 0 70px #af883733; }
+#introHeading { font-size:clamp(32px,6vw,64px); font-weight:900; letter-spacing:4px; color:#eeb329; text-shadow:0 4px 18px #000; }
+#gamePanel[data-phase=leaderboard] #leaderboard p { animation:leaderboardRise .6s both; background:linear-gradient(90deg,#462416,#63432155); border-left:4px solid #eeb329; border-radius:7px; }
+#gamePanel[data-phase=leaderboard] #leaderboard p:nth-child(2) { animation-delay:.12s; }
+#gamePanel[data-phase=leaderboard] #leaderboard p:nth-child(3) { animation-delay:.24s; }
+#gamePanel[data-phase=leaderboard] #leaderboard p:nth-child(4) { animation-delay:.36s; }
+#gamePanel[data-phase=finished] { box-shadow:0 0 65px #eeb32977,inset 0 0 45px #af883744; }
+@keyframes curtainAppear { from {opacity:0} to {opacity:1} }
+@keyframes curtainTitle { from {opacity:0;transform:scale(.65) translateY(30px)} to {opacity:1;transform:scale(1) translateY(0)} }
+@keyframes leaderboardRise { from {opacity:0;transform:translateX(-35px)} to {opacity:1;transform:translateX(0)} }
+@media (prefers-reduced-motion:reduce) { .round-curtain *, .round-curtain {animation:none!important} }
