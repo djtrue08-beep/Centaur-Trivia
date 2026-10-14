@@ -1,7 +1,20 @@
 const $ = id => document.getElementById(id);
 let mode = new URLSearchParams(location.search).get('mode') === 'full' ? 'full' : 'quick';
 $('lobbyMode').value = mode;
-$('lobbyMode').onchange = () => { mode = $('lobbyMode').value; $('modeLabel').textContent = mode === 'full' ? 'Full Game' : 'Quick Game'; };
+function chooseMode(nextMode) {
+  mode = nextMode;
+  $('lobbyMode').value = mode;
+  $('modeLabel').textContent = mode === 'full' ? 'Full Game' : 'Quick Game';
+  for (const option of ['quick', 'full']) {
+    const element = $(option + 'Mode');
+    const selected = option === mode;
+    element.classList.toggle('selected', selected);
+    element.setAttribute('aria-pressed', String(selected));
+  }
+}
+$('quickMode').onclick = () => chooseMode('quick');
+$('fullMode').onclick = () => chooseMode('full');
+chooseMode(mode);
 $('modeLabel').textContent = mode === 'full' ? 'Full Game' : 'Quick Game';
 let code = '';
 let timer = null;
@@ -37,9 +50,9 @@ async function setPaused(paused) {
   if (pauseBusy || !code) return;
   pauseBusy = true;
   try {
-    await api('pause-game', {
+    await api('room-control', {
       method: 'POST',
-      body: JSON.stringify({ code, paused })
+      body: JSON.stringify({ code, paused, operation: 'pause' })
     });
     applyPause(paused);
     await refresh();
@@ -172,36 +185,64 @@ $('create').onclick = async () => {
 };
 
 
-$('playAgain').onclick = async () => {
-  if (!code || !confirm('Start a fresh game with the same players and room code?')) return;
+function resetHostForLobby() {
+  CrixusVoice.cancel();
+  clearTimeout(revealAdvanceTimeout);
+  clearTimeout(leaderboardAdvanceTimeout);
+  clearTimeout(roundCurtainTimeout);
+  ++introSequenceToken;
+  lastPhaseKey = '';
+  narratedPhaseKey = '';
+  autoTimerKey = '';
+  revealAdvanceKey = '';
+  leaderboardAdvanceKey = '';
+  roundCurtainKey = '';
+  introComplete = false;
+  introActive = false;
+  gamePaused = false;
+  $('gamePanel').dataset.phase = 'lobby';
+  $('pauseOverlay').classList.add('hidden');
+  $('leaderboardStage').classList.add('hidden');
+  $('roundCurtain').classList.add('hidden');
+  show('lobbyPanel');
+}
+
+async function replayGame(returnToLobby) {
+  if (!code || actionBusy) return;
+  actionBusy = true;
   $('playAgain').disabled = true;
+  $('returnLobby').disabled = true;
   try {
-    await api('replay-room', {
+    await api('room-control', {
       method: 'POST',
-      body: JSON.stringify({ code })
+      body: JSON.stringify({ code, operation: 'replay' })
     });
-    CrixusVoice.cancel();
-    clearTimeout(revealAdvanceTimeout);
-    clearTimeout(leaderboardAdvanceTimeout);
-    clearTimeout(roundCurtainTimeout);
-    lastPhaseKey = '';
-    narratedPhaseKey = '';
-    autoTimerKey = '';
-    introComplete = false;
-    introActive = false;
-    gamePaused = false;
-    $('gamePanel').dataset.phase = 'lobby';
-    $('leaderboardStage').classList.add('hidden');
-    $('roundCurtain').classList.add('hidden');
-    show('lobbyPanel');
-    say('Same room reopened. Players may join or leave before the next game.');
+    resetHostForLobby();
     await refresh();
-  } catch (e) {
-    say(e.message);
+    if (returnToLobby) {
+      say('Lobby reopened. Players may join or leave.');
+    } else {
+      $('start').disabled = true;
+      const data = await api('start-game', {
+        method: 'POST',
+        body: JSON.stringify({ code, mode })
+      });
+      say(data.message);
+      showIntro();
+    }
+  } catch (exception) {
+    say(exception.message);
+    // If reset succeeded but game start failed, remain in lobby to retry.
+    await refresh();
   } finally {
+    actionBusy = false;
     $('playAgain').disabled = false;
+    $('returnLobby').disabled = false;
   }
-};
+}
+
+$('playAgain').onclick = () => replayGame(false);
+$('returnLobby').onclick = () => replayGame(true);
 
 $('copy').onclick = async () => {
   try {
@@ -353,7 +394,7 @@ function renderLeaderboard(data) {
     line.append(rank, name, score);
     rows.append(line);
   });
-  $('playAgain').classList.toggle('hidden', !finished);
+  $('championActions').classList.toggle('hidden', !finished);
   $('boardFooter').textContent = finished
     ? `${champions.length} ${champions.length === 1 ? 'CHAMPION' : 'CHAMPIONS'} CROWNED`
     : 'THE NEXT CHALLENGE AWAITS';
@@ -582,13 +623,14 @@ async function refresh() {
       if (room.status === 'waiting' && member.id) {
         const remove = document.createElement('button');
         remove.className = 'outline player-remove';
-        remove.textContent = 'REMOVE';
+        remove.textContent = '×';
+        remove.setAttribute('aria-label', `Remove ${member.name}`);
+        remove.title = `Remove ${member.name}`;
         remove.onclick = async () => {
-          if (!confirm(`Remove ${member.name} from this room?`)) return;
           try {
-            await api('remove-player', {
+            await api('room-control', {
               method: 'POST',
-              body: JSON.stringify({ code, playerId: member.id })
+              body: JSON.stringify({ code, playerId: member.id, operation: 'remove' })
             });
             await refresh();
           } catch (e) { say(e.message); }
@@ -610,12 +652,3 @@ async function refresh() {
   finally { refreshing = false; }
 }
 
-$('fullscreenToggle').onclick = async () => {
-  try {
-    if (document.fullscreenElement) await document.exitFullscreen();
-    else await document.documentElement.requestFullscreen();
-  } catch (e) { say('Fullscreen unavailable: ' + e.message); }
-};
-document.addEventListener('fullscreenchange', () => {
-  $('fullscreenToggle').textContent = document.fullscreenElement ? 'EXIT FULLSCREEN' : 'ENTER FULLSCREEN';
-});
