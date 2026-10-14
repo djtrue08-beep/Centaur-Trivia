@@ -11,9 +11,22 @@
   <div class="eyebrow">CRIXUS PRESENTS</div>
   <h1>CENTAUR <span>TRIVIA</span></h1>
   <h2>Host Arena · <span id="modeLabel">Quick Game</span></h2>
-  <button id="fullscreenToggle" class="outline" type="button">ENTER FULLSCREEN</button>
-  <button id="voiceToggle" class="outline" type="button">VOICE ON · CLICK TO MUTE</button>
-  <details class="voice-settings card">
+  <div id="setupControls" class="host-toolbar">
+    <button id="fullscreenToggle" class="outline compact" type="button">FULLSCREEN</button>
+    <button id="voiceToggle" class="outline compact" type="button">VOICE ON</button>
+    <button id="settingsToggle" class="outline compact" type="button">⚙ OPTIONS</button>
+  </div>
+  <button id="pauseToggle" class="pause-corner hidden" type="button">Ⅱ PAUSE</button>
+  <div id="pauseOverlay" class="pause-overlay hidden" role="dialog" aria-label="Game paused">
+    <div class="pause-menu card">
+      <div class="eyebrow">THE ARENA AWAITS</div>
+      <h2>GAME PAUSED</h2>
+      <p>All players are waiting for the host.</p>
+      <button id="resumeGame" type="button">▶ RESUME GAME</button>
+      <button id="pauseOptions" class="outline" type="button">⚙ OPTIONS</button>
+    </div>
+  </div>
+  <details id="voiceSettings" class="voice-settings card hidden">
     <summary>🎙 CRIXUS VOICE SETTINGS</summary>
     <label for="voiceSelect">Available Chromebook voices</label>
     <select id="voiceSelect"><option value="">System default</option></select>
@@ -77,6 +90,14 @@
     <div id="leaderboard" class="hidden"></div>
     <button id="gameButton" class="hidden">START TIMER</button>
     <p id="voiceHint" class="muted">Crixus reads each question before the timer starts.</p>
+  </section>
+  <section id="leaderboardStage" class="leaderboard-stage hidden" aria-live="polite">
+    <div class="eyebrow">THE ARENA STANDINGS</div>
+    <div class="leaderboard-crown">♛</div>
+    <h2 id="boardTitle">LEADERBOARD</h2>
+    <p id="boardSubtitle">AFTER THE ROUND</p>
+    <div id="boardRows" class="board-rows"></div>
+    <p id="boardFooter" class="muted"></p>
   </section>
   <p id="message" class="message" role="status"></p>
 </main>
