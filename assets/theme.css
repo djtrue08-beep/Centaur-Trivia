@@ -282,3 +282,25 @@ body:has(#introPanel:not(.hidden)) .shell > h2 {
   .lobby-columns { grid-template-columns: 1fr; }
   .lobby-players .player-grid { max-height: 300px; }
 }
+
+/* Host gameplay corner controls: fullscreen left, white Pause right. */
+.fullscreen-corner,
+.pause-corner {
+  position: fixed;
+  top: 14px;
+  z-index: 65;
+  width: auto;
+  max-width: calc(50vw - 24px);
+  margin: 0;
+  padding: 9px 13px;
+  border: 1px solid #af8837;
+  border-radius: 8px;
+  background: #462416;
+  color: #ffffff;
+  font: 700 13px/1.2 Arial, sans-serif;
+  letter-spacing: .04em;
+}
+.fullscreen-corner { left: 16px; right: auto; }
+.pause-corner { right: 16px; left: auto; color: #ffffff; }
+.fullscreen-corner:hover,
+.pause-corner:hover { background: #624024; }

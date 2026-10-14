@@ -42,6 +42,7 @@ function syncHostControls() {
   const active = introComplete && !!code && !['finished', 'lobby'].includes($('gamePanel').dataset.phase);
   $('setupControls').classList.toggle('hidden', active);
   $('pauseToggle').classList.toggle('hidden', !active || gamePaused);
+  $('fullscreenToggle').classList.toggle('hidden', !active);
   $('pauseOverlay').classList.toggle('hidden', !gamePaused);
   if (!active && !gamePaused) $('voiceSettings').classList.add('hidden');
 }
@@ -91,6 +92,27 @@ function applyPause(paused) {
   }
   syncHostControls();
 }
+
+// Fullscreen requires a direct user click in Chrome/Chromebook.
+function syncFullscreenButton() {
+  const fullscreen = !!document.fullscreenElement;
+  $('fullscreenToggle').textContent = fullscreen ? '⛶ EXIT FULLSCREEN' : '⛶ FULLSCREEN';
+  $('fullscreenToggle').setAttribute('aria-label', fullscreen ? 'Exit fullscreen' : 'Enter fullscreen');
+}
+
+$('fullscreenToggle').onclick = async () => {
+  try {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+    } else {
+      await document.documentElement.requestFullscreen();
+    }
+  } catch (error) {
+    alert('Fullscreen is unavailable in this browser: ' + error.message);
+  }
+  syncFullscreenButton();
+};
+document.addEventListener('fullscreenchange', syncFullscreenButton);
 
 $('pauseToggle').onclick = () => setPaused(true);
 $('resumeGame').onclick = () => setPaused(false);
