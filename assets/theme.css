@@ -304,3 +304,22 @@ body:has(#introPanel:not(.hidden)) .shell > h2 {
 .pause-corner { right: 16px; left: auto; color: #ffffff; }
 .fullscreen-corner:hover,
 .pause-corner:hover { background: #624024; }
+
+/* Emergency restart controls inside the paused host menu. */
+.pause-menu .end-session-button {
+  background: #542722;
+  border: 1px solid #c76a60;
+  color: #ffffff;
+}
+.pause-menu .end-session-button:hover {
+  background: #71332c;
+}
+.end-session-confirm {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #af883766;
+}
+.end-session-confirm p {
+  color: #fff1d4;
+  line-height: 1.5;
+}

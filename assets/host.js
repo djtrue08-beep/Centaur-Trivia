@@ -116,6 +116,40 @@ document.addEventListener('fullscreenchange', syncFullscreenButton);
 
 $('pauseToggle').onclick = () => setPaused(true);
 $('resumeGame').onclick = () => setPaused(false);
+
+$('endSession').onclick = () => {
+  if (!gamePaused) return;
+  $('endSessionConfirm').classList.remove('hidden');
+  $('endSession').classList.add('hidden');
+};
+
+$('cancelEndSession').onclick = () => {
+  $('endSessionConfirm').classList.add('hidden');
+  $('endSession').classList.remove('hidden');
+};
+
+$('confirmEndSession').onclick = async () => {
+  if (!gamePaused || pauseBusy || actionBusy || !code) return;
+  actionBusy = true;
+  $('confirmEndSession').disabled = true;
+  try {
+    await api('room-control', {
+      method: 'POST',
+      body: JSON.stringify({ code, operation: 'end-session' })
+    });
+    resetHostForLobby();
+    $('endSessionConfirm').classList.add('hidden');
+    $('endSession').classList.remove('hidden');
+    await refresh();
+    say('Session ended. All players are back in the lobby.');
+  } catch (exception) {
+    say(exception.message);
+  } finally {
+    actionBusy = false;
+    $('confirmEndSession').disabled = false;
+  }
+};
+
 function openVoiceSettings() {
   $('voiceSettings').open = true;
   $('voiceSettings').classList.remove('hidden');
@@ -224,6 +258,11 @@ function resetHostForLobby() {
   gamePaused = false;
   $('gamePanel').dataset.phase = 'lobby';
   $('pauseOverlay').classList.add('hidden');
+  $('endSessionConfirm').classList.add('hidden');
+  $('endSession').classList.remove('hidden');
+  pausedVoiceDone = null;
+  pausedRevealRemaining = null;
+  pausedBoardRemaining = null;
   $('leaderboardStage').classList.add('hidden');
   $('roundCurtain').classList.add('hidden');
   show('lobbyPanel');
