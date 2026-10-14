@@ -1,44 +1,54 @@
-// Crixus voice adapter. Replace speak() later with prerecorded ElevenLabs audio.
+// Browser voices available on this device. Preferences stay in this browser.
 const CrixusVoice = (() => {
   const supported = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
-  let enabled = supported;
+  const synth = supported ? window.speechSynthesis : null;
+  const store = 'centaur-crixus-voice-v2';
+  let settings;
+  try { settings = JSON.parse(localStorage.getItem(store) || '{}'); }
+  catch { settings = {}; }
+  let enabled = supported && settings.enabled !== false;
   let token = 0;
+  let activeUtterance = null;
 
-  function cancel() {
-    token += 1;
-    if (supported) window.speechSynthesis.cancel();
+  function voices() { return supported ? synth.getVoices() : []; }
+  function save(next) {
+    settings = { ...settings, ...next };
+    try { localStorage.setItem(store, JSON.stringify(settings)); } catch {}
   }
-
+  function cancel() {
+    token++;
+    if (supported) synth.cancel();
+    activeUtterance = null;
+  }
   function speak(text, onComplete = () => {}) {
     cancel();
     const current = token;
-    if (!enabled || !text || !supported) {
-      onComplete();
-      return;
-    }
+    if (!enabled || !supported || !text) { onComplete(); return; }
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.92;
-    utterance.pitch = 0.83;
-    utterance.volume = 1;
-    const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find(v => v.lang.startsWith('en') && /male|david|daniel|guy|mark/i.test(v.name));
-    if (preferred) utterance.voice = preferred;
+    utterance.rate = Number(settings.rate ?? 0.92);
+    utterance.pitch = Number(settings.pitch ?? 0.83);
+    utterance.volume = Number(settings.volume ?? 1);
+    const available = voices();
+    const selected = available.find(v => v.voiceURI === settings.voiceURI);
+    const fallback = available.find(v => v.lang.startsWith('en') && /male|david|daniel|guy|mark/i.test(v.name));
+    if (selected || fallback) utterance.voice = selected || fallback;
     let completed = false;
     const finish = () => {
       if (completed || current !== token) return;
       completed = true;
+      activeUtterance = null;
       onComplete();
     };
     utterance.onend = finish;
     utterance.onerror = finish;
-    window.speechSynthesis.speak(utterance);
+    activeUtterance = utterance;
+    synth.speak(utterance);
   }
-
   return {
-    speak,
-    cancel,
+    speak, cancel, voices, save,
+    get settings() { return { ...settings }; },
     get enabled() { return enabled; },
     get supported() { return supported; },
-    setEnabled(value) { enabled = supported && value; cancel(); }
+    setEnabled(value) { enabled = supported && Boolean(value); save({ enabled }); cancel(); }
   };
 })();

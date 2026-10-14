@@ -81,9 +81,76 @@ $('copy').onclick = async () => {
   } catch { say('Copy the displayed join link'); }
 };
 
+// Voice settings are stored locally on the host Chromebook.
+function populateVoices() {
+  const select = $('voiceSelect');
+  const previous = select.value || CrixusVoice.settings.voiceURI || '';
+  select.replaceChildren(new Option('System default', ''));
+  CrixusVoice.voices().forEach(voice => {
+    select.add(new Option(`${voice.name} (${voice.lang})`, voice.voiceURI));
+  });
+  if ([...select.options].some(option => option.value === previous)) select.value = previous;
+}
+populateVoices();
+if (CrixusVoice.supported) speechSynthesis.addEventListener('voiceschanged', populateVoices);
+$('voiceRate').value = CrixusVoice.settings.rate ?? 0.92;
+$('voicePitch').value = CrixusVoice.settings.pitch ?? 0.83;
+function syncVoiceLabels() {
+  $('rateValue').textContent = $('voiceRate').value;
+  $('pitchValue').textContent = $('voicePitch').value;
+}
+$('voiceRate').oninput = syncVoiceLabels;
+$('voicePitch').oninput = syncVoiceLabels;
+syncVoiceLabels();
+function voiceSelection() {
+  return {
+    voiceURI: $('voiceSelect').value,
+    rate: Number($('voiceRate').value),
+    pitch: Number($('voicePitch').value)
+  };
+}
+$('testVoice').onclick = () => {
+  CrixusVoice.save(voiceSelection());
+  CrixusVoice.speak('I am Crixus the Centaur. Welcome to my arena!');
+};
+$('saveVoice').onclick = () => {
+  CrixusVoice.save(voiceSelection());
+  say('Crixus voice settings saved on this Chromebook.');
+};
+let introActive = false;
+let introComplete = false;
+function showIntro() {
+  introActive = true;
+  introComplete = false;
+  show('introPanel');
+  $('introHeading').textContent = 'WELCOME TO CENTAUR TRIVIA';
+  $('introText').textContent = 'Crixus welcomes the challengers!';
+  $('introContinue').disabled = true;
+  const roundCount = mode === 'full' ? 6 : 3;
+  const opening = 'Welcome, challengers, to Centaur Trivia! I am Crixus, master of this arena. Prepare your minds, for the contest is about to begin!';
+  const rules = `Before the first round, heed these rules. Each player competes alone. Each question has four possible answers, but only one is correct. Select your answer on your phone before time expires. Once selected, your answer is locked. In round one, each correct answer earns one point. In round two, two points. Each new round adds one point per correct answer, all the way through round ${roundCount}. Wrong answers earn zero. Your standings appear after every round. Now, warriors, prepare for round one!`;
+  const ready = () => {
+    $('introText').textContent = 'Rules complete. The arena awaits!';
+    $('introContinue').disabled = false;
+  };
+  CrixusVoice.speak(opening, () => {
+    if (!introActive) return;
+    $('introHeading').textContent = 'HOW TO PLAY & SCORING';
+    $('introText').textContent = `Four choices per question. One correct answer. Round 1 = 1 point per correct answer; Round 2 = 2; each subsequent round increases by one. Wrong answers = 0. Leaderboard after every round.`;
+    CrixusVoice.speak(rules, ready);
+  });
+  if (!CrixusVoice.enabled) ready();
+}
+$('introContinue').onclick = () => {
+  introActive = false;
+  introComplete = true;
+  CrixusVoice.cancel();
+  refresh();
+};
 $('voiceToggle').onclick = () => {
   CrixusVoice.setEnabled(!CrixusVoice.enabled);
   $('voiceToggle').textContent = CrixusVoice.enabled ? 'VOICE ON · CLICK TO MUTE' : 'VOICE OFF · CLICK TO ENABLE';
+  if (!CrixusVoice.enabled && introActive) $('introContinue').disabled = false;
   if (!CrixusVoice.enabled && voiceFinished === false && lastPhaseKey.endsWith(':question')) {
     voiceFinished = true;
     startQuestionTimer(lastPhaseKey);
@@ -97,8 +164,7 @@ $('start').onclick = async () => {
       method: 'POST', body: JSON.stringify({ code })
     });
     say(data.message);
-    CrixusVoice.speak('Welcome, challengers, to Centaur Trivia! Let the contest begin!');
-    await refresh();
+    showIntro();
   } catch (e) { say(e.message); $('start').disabled = false; }
 };
 
@@ -158,6 +224,12 @@ function narratePhase(data, key) {
   CrixusVoice.cancel();
   voiceFinished = false;
   if (data.phase === 'question') {
+    if (data.number > 1 && (data.number - 1) % 5 === 0) {
+      CrixusVoice.speak(`Round ${data.round} begins! A new challenge awaits!`, () => {
+        if (lastPhaseKey === key) CrixusVoice.speak(data.question || '', () => { voiceFinished = true; startQuestionTimer(key); });
+      });
+      return;
+    }
     CrixusVoice.speak(data.question || '', () => {
       voiceFinished = true;
       startQuestionTimer(key);
@@ -166,11 +238,17 @@ function narratePhase(data, key) {
     const answer = data.choices?.[data.correctAnswer];
     if (answer !== undefined) CrixusVoice.speak(`The correct answer is ${answer}.`);
   } else if (data.phase === 'leaderboard') {
-    CrixusVoice.speak('Behold the leaderboard! Let us see who commands the arena.');
+    CrixusVoice.speak(`Round ${data.round} is complete. Behold the leaderboard! Let us see who commands the arena.`);
   } else if (data.phase === 'intermission') {
     CrixusVoice.speak('Even champions require a moment of rest. We shall resume shortly.');
   } else if (data.phase === 'finished') {
-    CrixusVoice.speak('The contest is complete! All hail the champions of Centaur Trivia!');
+    const highest = data.leaderboard?.[0]?.score;
+    const champions = (data.leaderboard || []).filter(player => player.score === highest);
+    const names = champions.map(player => player.name);
+    const announcement = names.length > 1
+      ? `The contest is complete! We have a tie! ${names.join(' and ')} share the crown as champions of Centaur Trivia!`
+      : `The contest is complete! All hail ${names[0] || 'our champion'}, victor of Centaur Trivia!`;
+    CrixusVoice.speak(announcement);
   }
 }
 
@@ -187,6 +265,7 @@ function scheduleRevealAdvance(key) {
 }
 
 function renderGame(data) {
+  if (introActive || !introComplete) return;
   show('gamePanel');
   const key = `${data.number}:${data.phase}`;
   if (key !== lastPhaseKey) {
@@ -194,6 +273,10 @@ function renderGame(data) {
     revealAdvanceTimeout = null;
     revealAdvanceKey = '';
     lastPhaseKey = key;
+    $('gamePanel').dataset.phase = data.phase;
+    $('gamePanel').classList.remove('phase-enter');
+    void $('gamePanel').offsetWidth;
+    $('gamePanel').classList.add('phase-enter');
     say('');
   }
   $('gameMeta').textContent = `ROUND ${data.round} OF ${data.roundCount} · QUESTION ${data.number} OF ${data.total}`;
@@ -270,6 +353,7 @@ async function refresh() {
     });
     $('start').disabled = room.count === 0 || room.status !== 'waiting';
     if (room.status !== 'waiting') {
+      if (!introActive && !introComplete) introComplete = true;
       const state = await api('game-state?code=' + encodeURIComponent(code));
       renderGame(state);
     }
