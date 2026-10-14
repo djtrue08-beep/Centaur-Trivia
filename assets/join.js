@@ -119,10 +119,25 @@ async function refresh() {
   try {
     const room = await api('room-state?code=' + encodeURIComponent(code));
     $('count').textContent = room.count;
-    if (room.status !== 'waiting') {
+    if (room.status === 'waiting') {
+      $('playerPause').classList.add('hidden');
+      $('playerGame').classList.add('hidden');
+      $('waiting').classList.remove('hidden');
+      $('phase').textContent = 'New game coming soon. You are still connected!';
+    } else {
       const state = await api('game-state?code=' + encodeURIComponent(code));
       renderGame(state);
     }
-  } catch (e) { say(e.message); }
+  } catch (e) {
+    say(e.message);
+    if (/removed from this room/i.test(e.message)) {
+      clearInterval(timer);
+      $('playerPause').classList.add('hidden');
+      $('playerGame').classList.add('hidden');
+      $('waiting').classList.add('hidden');
+      $('formPanel').classList.remove('hidden');
+      code = '';
+    }
+  }
   finally { refreshing = false; }
 }

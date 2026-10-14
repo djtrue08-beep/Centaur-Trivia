@@ -1,5 +1,7 @@
 const $ = id => document.getElementById(id);
-const mode = new URLSearchParams(location.search).get('mode') === 'full' ? 'full' : 'quick';
+let mode = new URLSearchParams(location.search).get('mode') === 'full' ? 'full' : 'quick';
+$('lobbyMode').value = mode;
+$('lobbyMode').onchange = () => { mode = $('lobbyMode').value; $('modeLabel').textContent = mode === 'full' ? 'Full Game' : 'Quick Game'; };
 $('modeLabel').textContent = mode === 'full' ? 'Full Game' : 'Quick Game';
 let code = '';
 let timer = null;
@@ -79,8 +81,29 @@ function applyPause(paused) {
 
 $('pauseToggle').onclick = () => setPaused(true);
 $('resumeGame').onclick = () => setPaused(false);
-$('settingsToggle').onclick = () => $('voiceSettings').classList.toggle('hidden');
-$('pauseOptions').onclick = () => $('voiceSettings').classList.toggle('hidden');
+function openVoiceSettings() {
+  $('voiceSettings').open = true;
+  $('voiceSettings').classList.remove('hidden');
+  populateVoices();
+  $('voiceSelect').value = CrixusVoice.settings.voiceURI || '';
+  $('voiceRate').value = CrixusVoice.settings.rate ?? 0.92;
+  $('voicePitch').value = CrixusVoice.settings.pitch ?? 0.83;
+  syncVoiceLabels();
+}
+function closeVoiceSettings() {
+  // A voice preview can interrupt the paused narration. Continue safely on resume.
+  if (gamePaused && lastPhaseKey.endsWith(':question')) {
+    pausedVoiceDone = () => startQuestionTimer(lastPhaseKey);
+  } else if (gamePaused && lastPhaseKey.endsWith(':reveal') && pausedRevealRemaining === null) {
+    pausedVoiceDone = () => scheduleRevealAdvance(lastPhaseKey);
+  }
+  CrixusVoice.cancel();
+  $('voiceSettings').open = false;
+  $('voiceSettings').classList.add('hidden');
+}
+$('settingsToggle').onclick = openVoiceSettings;
+$('pauseOptions').onclick = openVoiceSettings;
+$('cancelVoice').onclick = closeVoiceSettings;
 
 const say = text => { $('message').textContent = text; };
 
@@ -148,6 +171,38 @@ $('create').onclick = async () => {
   } catch (e) { say(e.message); $('create').disabled = false; }
 };
 
+
+$('playAgain').onclick = async () => {
+  if (!code || !confirm('Start a fresh game with the same players and room code?')) return;
+  $('playAgain').disabled = true;
+  try {
+    await api('replay-room', {
+      method: 'POST',
+      body: JSON.stringify({ code })
+    });
+    CrixusVoice.cancel();
+    clearTimeout(revealAdvanceTimeout);
+    clearTimeout(leaderboardAdvanceTimeout);
+    clearTimeout(roundCurtainTimeout);
+    lastPhaseKey = '';
+    narratedPhaseKey = '';
+    autoTimerKey = '';
+    introComplete = false;
+    introActive = false;
+    gamePaused = false;
+    $('gamePanel').dataset.phase = 'lobby';
+    $('leaderboardStage').classList.add('hidden');
+    $('roundCurtain').classList.add('hidden');
+    show('lobbyPanel');
+    say('Same room reopened. Players may join or leave before the next game.');
+    await refresh();
+  } catch (e) {
+    say(e.message);
+  } finally {
+    $('playAgain').disabled = false;
+  }
+};
+
 $('copy').onclick = async () => {
   try {
     await navigator.clipboard.writeText($('joinLink').href);
@@ -184,12 +239,13 @@ function voiceSelection() {
   };
 }
 $('testVoice').onclick = () => {
-  CrixusVoice.save(voiceSelection());
-  CrixusVoice.speak('I am Crixus the Centaur. Welcome to my arena!');
+  if (gamePaused && CrixusVoice.supported) speechSynthesis.resume();
+  CrixusVoice.speakWithSettings('I am Crixus the Centaur. Welcome to my arena!', voiceSelection());
 };
 $('saveVoice').onclick = () => {
   CrixusVoice.save(voiceSelection());
-  say('Crixus voice settings saved on this Chromebook.');
+  closeVoiceSettings();
+  say('Voice settings saved.');
 };
 let introActive = false;
 let introComplete = false;
@@ -238,8 +294,9 @@ $('start').onclick = async () => {
   try {
     $('start').disabled = true;
     const data = await api('start-game', {
-      method: 'POST', body: JSON.stringify({ code })
+      method: 'POST', body: JSON.stringify({ code, mode: $('lobbyMode').value })
     });
+    mode = $('lobbyMode').value;
     say(data.message);
     showIntro();
   } catch (e) { say(e.message); $('start').disabled = false; }
@@ -296,6 +353,7 @@ function renderLeaderboard(data) {
     line.append(rank, name, score);
     rows.append(line);
   });
+  $('playAgain').classList.toggle('hidden', !finished);
   $('boardFooter').textContent = finished
     ? `${champions.length} ${champions.length === 1 ? 'CHAMPION' : 'CHAMPIONS'} CROWNED`
     : 'THE NEXT CHALLENGE AWAITS';
@@ -441,12 +499,12 @@ function renderGame(data) {
       $('roundCurtain').classList.add('hidden');
     }
   }
-  $('gameMeta').textContent = `ROUND ${data.round} OF ${data.roundCount} · QUESTION ${data.number} OF ${data.total}`;
-  $('gameHeading').textContent = data.phase === 'finished' ? 'GAME COMPLETE' : 'CENTAUR TRIVIA';
+  $('gameMeta').textContent = `ROUND ${data.round} · QUESTION ${((data.number - 1) % 5) + 1}/5`;
+  $('gameHeading').textContent = data.phase === 'finished' ? 'GAME COMPLETE' : '';
   $('category').textContent = data.category || '';
   $('questionText').textContent = data.question || '';
   $('progress').textContent = `${data.answeredCount} / ${data.playerCount} players answered`;
-  $('clock').textContent = '';
+  $('clock').classList.add('hidden');
   $('leaderboard').classList.add('hidden');
   $('voiceHint').classList.toggle('hidden', data.phase !== 'question');
   $('voiceHint').textContent = CrixusVoice.enabled
@@ -470,7 +528,10 @@ function renderGame(data) {
   if (data.phase === 'question' && !CrixusVoice.enabled) button('START TIMER NOW', 'timer');
   if (data.phase === 'answering') {
     const remaining = Math.max(0, Math.ceil((data.paused ? data.remainingMs : Date.parse(data.endsAt) - Date.now()) / 1000));
-    $('clock').textContent = `${remaining}s`;
+    $('clock').classList.remove('hidden');
+    $('clockNumber').textContent = remaining;
+    $('clock').style.setProperty('--remaining', Math.min(1, remaining / 12));
+    $('clock').classList.toggle('clock-urgent', remaining <= 5);
     if (!gamePaused && (remaining === 0 || (data.playerCount > 0 && data.answeredCount >= data.playerCount)) && !actionBusy) {
       gameAction('finish');
     }
@@ -480,12 +541,12 @@ function renderGame(data) {
     $('questionText').textContent = '';
     $('category').textContent = '';
     $('progress').textContent = '';
-    $('clock').textContent = ''; 
+    $('clock').classList.add('hidden'); 
     if (!CrixusVoice.enabled) scheduleRevealAdvance(key);
   }
   if (data.phase === 'leaderboard') {
     renderLeaderboard(data);
-    $('clock').textContent = 'Next round begins automatically';
+    $('clock').classList.add('hidden');
     // Advancement is automatic; the Pause menu remains available.
     if (!gamePaused) scheduleLeaderboardAdvance(key);
   }
@@ -512,13 +573,34 @@ async function refresh() {
     $('count').textContent = room.count;
     $('players').replaceChildren();
     if (!room.players.length) $('players').textContent = 'Waiting for players...';
-    else room.players.forEach(name => {
+    else (room.members || room.players.map(name => ({ name }))).forEach(member => {
       const element = document.createElement('div');
       element.className = 'player';
-      element.textContent = name;
+      const name = document.createElement('span');
+      name.textContent = member.name;
+      element.append(name);
+      if (room.status === 'waiting' && member.id) {
+        const remove = document.createElement('button');
+        remove.className = 'outline player-remove';
+        remove.textContent = 'REMOVE';
+        remove.onclick = async () => {
+          if (!confirm(`Remove ${member.name} from this room?`)) return;
+          try {
+            await api('remove-player', {
+              method: 'POST',
+              body: JSON.stringify({ code, playerId: member.id })
+            });
+            await refresh();
+          } catch (e) { say(e.message); }
+        };
+        element.append(remove);
+      }
       $('players').append(element);
     });
     $('start').disabled = room.count === 0 || room.status !== 'waiting';
+    if (room.status === 'waiting' && $('lobbyPanel').classList.contains('hidden')) {
+      show('lobbyPanel');
+    }
     if (room.status !== 'waiting') {
       if (!introActive && !introComplete && room.status === 'finished') introComplete = true;
       const state = await api('game-state?code=' + encodeURIComponent(code));
