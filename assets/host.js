@@ -15,6 +15,72 @@ let leaderboardAdvanceTimeout = null;
 let roundCurtainKey = '';
 let roundCurtainTimeout = null;
 let introSequenceToken = 0;
+let gamePaused = false;
+let pauseBusy = false;
+let pausedVoiceDone = null;
+let pausedRevealRemaining = null;
+let pausedBoardRemaining = null;
+let revealDueAt = 0;
+let boardDueAt = 0;
+
+function syncHostControls() {
+  const active = introComplete && !!code && !['finished', 'lobby'].includes($('gamePanel').dataset.phase);
+  $('setupControls').classList.toggle('hidden', active);
+  $('pauseToggle').classList.toggle('hidden', !active || gamePaused);
+  $('pauseOverlay').classList.toggle('hidden', !gamePaused);
+  if (!active && !gamePaused) $('voiceSettings').classList.add('hidden');
+}
+
+async function setPaused(paused) {
+  if (pauseBusy || !code) return;
+  pauseBusy = true;
+  try {
+    await api('pause-game', {
+      method: 'POST',
+      body: JSON.stringify({ code, paused })
+    });
+    applyPause(paused);
+    await refresh();
+  } catch (e) { say(e.message); }
+  finally { pauseBusy = false; }
+}
+
+function applyPause(paused) {
+  if (gamePaused === paused) return;
+  gamePaused = paused;
+  if (paused) {
+    pausedRevealRemaining = revealAdvanceTimeout ? Math.max(0, revealDueAt - Date.now()) : null;
+    pausedBoardRemaining = leaderboardAdvanceTimeout ? Math.max(0, boardDueAt - Date.now()) : null;
+    clearTimeout(revealAdvanceTimeout);
+    clearTimeout(leaderboardAdvanceTimeout);
+    revealAdvanceTimeout = null;
+    leaderboardAdvanceTimeout = null;
+    if (CrixusVoice.supported) speechSynthesis.pause();
+  } else {
+    if (CrixusVoice.supported) speechSynthesis.resume();
+    if (pausedRevealRemaining !== null && lastPhaseKey.endsWith(':reveal')) {
+      revealAdvanceKey = '';
+      scheduleRevealAdvance(lastPhaseKey, pausedRevealRemaining);
+    }
+    if (pausedBoardRemaining !== null && lastPhaseKey.endsWith(':leaderboard')) {
+      leaderboardAdvanceKey = '';
+      scheduleLeaderboardAdvance(lastPhaseKey, pausedBoardRemaining);
+    }
+    pausedRevealRemaining = null;
+    pausedBoardRemaining = null;
+    if (pausedVoiceDone) {
+      const callback = pausedVoiceDone;
+      pausedVoiceDone = null;
+      callback();
+    }
+  }
+  syncHostControls();
+}
+
+$('pauseToggle').onclick = () => setPaused(true);
+$('resumeGame').onclick = () => setPaused(false);
+$('settingsToggle').onclick = () => $('voiceSettings').classList.toggle('hidden');
+$('pauseOptions').onclick = () => $('voiceSettings').classList.toggle('hidden');
 
 const say = text => { $('message').textContent = text; };
 
@@ -29,9 +95,11 @@ async function api(path, options = {}) {
 }
 
 function show(id) {
+  if (id !== 'gamePanel') $('leaderboardStage').classList.add('hidden');
   ['loginPanel', 'setupPanel', 'lobbyPanel', 'introPanel', 'gamePanel'].forEach(panel => {
     $(panel).classList.toggle('hidden', panel !== id);
   });
+  syncHostControls();
 }
 
 (async () => {
@@ -178,7 +246,7 @@ $('start').onclick = async () => {
 };
 
 async function gameAction(action) {
-  if (actionBusy) return;
+  if (actionBusy || gamePaused) return;
   actionBusy = true;
   $('gameButton').disabled = true;
   try {
@@ -203,25 +271,38 @@ function button(text, action) {
 }
 
 function renderLeaderboard(data) {
-  const board = $('leaderboard');
-  board.replaceChildren();
-  board.classList.remove('hidden');
-  const heading = document.createElement('h3');
-  heading.textContent = data.phase === 'finished' ? 'FINAL WINNERS' : 'ROUND LEADERBOARD';
-  board.append(heading);
-  (data.leaderboard || []).forEach((person, index) => {
-    const line = document.createElement('p');
-    line.textContent = `${index + 1}. ${person.name} — ${person.score} points`;
-    board.append(line);
+  const stage = $('leaderboardStage');
+  const rows = $('boardRows');
+  rows.replaceChildren();
+  stage.classList.remove('hidden');
+  const finished = data.phase === 'finished';
+  $('boardTitle').textContent = finished ? 'CHAMPIONS OF THE ARENA' : 'LEADERBOARD';
+  $('boardSubtitle').textContent = finished ? 'THE FINAL STANDINGS' : `AFTER ROUND ${data.round}`;
+  const players = data.leaderboard || [];
+  const best = players[0]?.score;
+  const champions = finished ? players.filter(person => person.score === best) : [];
+  const displayed = finished ? champions : players.slice(0, 5);
+  displayed.forEach((person, index) => {
+    const line = document.createElement('div');
+    line.className = 'board-row' + (index === 0 ? ' first-place' : '');
+    const rank = document.createElement('span');
+    rank.className = 'board-rank';
+    rank.textContent = index === 0 ? '♛' : String(index + 1);
+    const name = document.createElement('strong');
+    name.textContent = person.name;
+    const score = document.createElement('span');
+    score.className = 'board-score';
+    score.textContent = Number(person.score || 0).toLocaleString();
+    line.append(rank, name, score);
+    rows.append(line);
   });
-  if (data.phase === 'finished' && data.leaderboard?.length) {
-    const high = data.leaderboard[0].score;
-    const names = data.leaderboard.filter(p => p.score === high).map(p => p.name);
-    $('gameHeading').textContent = '👑 ' + names.join(' & ') + ' 👑';
-  }
+  $('boardFooter').textContent = finished
+    ? `${champions.length} ${champions.length === 1 ? 'CHAMPION' : 'CHAMPIONS'} CROWNED`
+    : 'THE NEXT CHALLENGE AWAITS';
 }
 
 function startQuestionTimer(key) {
+  if (gamePaused) { pausedVoiceDone = () => startQuestionTimer(key); return; }
   if (lastPhaseKey !== key || autoTimerKey === key || actionBusy) return;
   autoTimerKey = key;
   gameAction('timer');
@@ -260,6 +341,7 @@ function roundPoints(round) {
   return mode === 'quick' ? round * 100 : Math.ceil(round / 2) * 100;
 }
 function narratePhase(data, key) {
+  if (gamePaused) return;
   if (narratedPhaseKey === key) return;
   narratedPhaseKey = key;
   CrixusVoice.cancel();
@@ -297,25 +379,27 @@ function narratePhase(data, key) {
   }
 }
 
-function scheduleRevealAdvance(key) {
+function scheduleRevealAdvance(key, delay = 3200) {
   if (revealAdvanceKey === key) return;
   clearTimeout(revealAdvanceTimeout);
   revealAdvanceKey = key;
+  revealDueAt = Date.now() + delay;
   revealAdvanceTimeout = setTimeout(() => {
     revealAdvanceTimeout = null;
-    if (lastPhaseKey === key && !actionBusy) {
+    if (lastPhaseKey === key && !actionBusy && !gamePaused) {
       gameAction('next');
     }
-  }, 3200);
+  }, delay);
 }
 
-function scheduleLeaderboardAdvance(key) {
+function scheduleLeaderboardAdvance(key, delay = 8500) {
   if (leaderboardAdvanceKey === key) return;
   clearTimeout(leaderboardAdvanceTimeout);
   leaderboardAdvanceKey = key;
+  boardDueAt = Date.now() + delay;
   leaderboardAdvanceTimeout = setTimeout(() => {
-    if (lastPhaseKey === key && !actionBusy) gameAction('next');
-  }, 8500);
+    if (lastPhaseKey === key && !actionBusy && !gamePaused) gameAction('next');
+  }, delay);
 }
 
 function showRoundCurtain(data, key) {
@@ -333,6 +417,9 @@ function showRoundCurtain(data, key) {
 function renderGame(data) {
   if (introActive || !introComplete || data.phase === 'intro') return;
   show('gamePanel');
+  applyPause(!!data.paused);
+  $('leaderboardStage').classList.toggle('hidden', !['leaderboard', 'finished'].includes(data.phase));
+  syncHostControls();
   const key = `${data.number}:${data.phase}`;
   if (key !== lastPhaseKey) {
     clearTimeout(leaderboardAdvanceTimeout);
@@ -341,6 +428,8 @@ function renderGame(data) {
     revealAdvanceTimeout = null;
     revealAdvanceKey = '';
     lastPhaseKey = key;
+    pausedRevealRemaining = null;
+    pausedBoardRemaining = null;
     $('gamePanel').dataset.phase = data.phase;
     $('gamePanel').classList.remove('phase-enter');
     void $('gamePanel').offsetWidth;
@@ -378,11 +467,11 @@ function renderGame(data) {
       $('hostChoices').append(line);
     }
   }
-  if (data.phase === 'question') button('START TIMER NOW', 'timer');
+  if (data.phase === 'question' && !CrixusVoice.enabled) button('START TIMER NOW', 'timer');
   if (data.phase === 'answering') {
-    const remaining = Math.max(0, Math.ceil((Date.parse(data.endsAt) - Date.now()) / 1000));
+    const remaining = Math.max(0, Math.ceil((data.paused ? data.remainingMs : Date.parse(data.endsAt) - Date.now()) / 1000));
     $('clock').textContent = `${remaining}s`;
-    if ((remaining === 0 || (data.playerCount > 0 && data.answeredCount >= data.playerCount)) && !actionBusy) {
+    if (!gamePaused && (remaining === 0 || (data.playerCount > 0 && data.answeredCount >= data.playerCount)) && !actionBusy) {
       gameAction('finish');
     }
   }
@@ -397,8 +486,8 @@ function renderGame(data) {
   if (data.phase === 'leaderboard') {
     renderLeaderboard(data);
     $('clock').textContent = 'Next round begins automatically';
-    button(data.number === data.total ? 'CROWN THE WINNERS NOW' : 'CONTINUE NOW', 'next');
-    scheduleLeaderboardAdvance(key);
+    // Advancement is automatic; the Pause menu remains available.
+    if (!gamePaused) scheduleLeaderboardAdvance(key);
   }
   if (data.phase === 'intermission') {
     $('gameHeading').textContent = 'INTERMISSION';
@@ -411,7 +500,7 @@ function renderGame(data) {
     $('questionText').textContent = 'Thanks for playing Centaur Trivia!';
     $('hostChoices').replaceChildren();
   }
-  narratePhase(data, key);
+  if (!gamePaused) narratePhase(data, key);
 }
 
 let refreshing = false;

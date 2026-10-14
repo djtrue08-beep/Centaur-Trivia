@@ -64,6 +64,7 @@ function showLeaderboard(data) {
 }
 
 function renderGame(data) {
+  $('playerPause').classList.toggle('hidden', !data.paused);
   $('waiting').classList.add('hidden');
   $('playerGame').classList.remove('hidden');
   $('playerMeta').textContent = `ROUND ${data.round} · QUESTION ${data.number}/${data.total}`;
@@ -82,7 +83,7 @@ function renderGame(data) {
     $('answerStatus').textContent = 'Waiting for Crixus to finish the question...';
   }
   if (data.phase === 'answering') {
-    const remaining = Math.max(0, Math.ceil((Date.parse(data.endsAt) - Date.now()) / 1000));
+    const remaining = Math.max(0, Math.ceil((data.paused ? data.remainingMs : Date.parse(data.endsAt) - Date.now()) / 1000));
     $('playerClock').textContent = remaining + 's';
     if (data.myAnswer !== null) $('answerStatus').textContent = '⭐ Answer locked!';
     else if (!remaining) $('answerStatus').textContent = 'Time is up!';
@@ -90,7 +91,7 @@ function renderGame(data) {
       const button = document.createElement('button');
       button.className = 'answer-option';
       button.textContent = '⭐ ' + choice;
-      button.disabled = data.myAnswer !== null || remaining === 0;
+      button.disabled = data.paused || data.myAnswer !== null || remaining === 0;
       if (data.myAnswer === index) button.classList.add('chosen');
       button.onclick = () => submit(data.choiceIndices?.[index] ?? index);
       $('answerChoices').append(button);
