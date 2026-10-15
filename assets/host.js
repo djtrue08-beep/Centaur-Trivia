@@ -441,13 +441,13 @@ function renderLeaderboard(data) {
   const players = data.leaderboard || [];
   const best = players[0]?.score;
   const champions = finished ? players.filter(person => person.score === best) : [];
-  const displayed = finished ? champions : players.slice(0, 5);
+  const displayed = finished ? players.slice(0, 12) : players.slice(0, 5);
   displayed.forEach((person, index) => {
     const line = document.createElement('div');
-    line.className = 'board-row' + (index === 0 ? ' first-place' : '');
+    line.className = 'board-row' + (person.score === best ? ' first-place' : '');
     const rank = document.createElement('span');
     rank.className = 'board-rank';
-    rank.textContent = index === 0 ? '♛' : String(index + 1);
+    rank.textContent = person.score === best ? '♛' : String(players.findIndex(p => p.score === person.score) + 1);
     const name = document.createElement('strong');
     name.textContent = person.name;
     const score = document.createElement('span');
@@ -710,7 +710,7 @@ function showRoundCurtain(data, key) {
   clearTimeout(roundCurtainTimeout);
   const curtain = $('roundCurtain');
   $('curtainRound').textContent = data.number === data.total ? 'FINAL QUESTION' : `ROUND ${data.round}`;
-  $('curtainSubtitle').textContent = data.number === data.total ? 'THE MOMENT OF TRUTH' : data.round === 1 ? 'THE ARENA OPENS' : 'THE CHALLENGE CONTINUES';
+  $('curtainSubtitle').textContent = data.number === data.total ? '500 POINTS · THE MOMENT OF TRUTH' : `${roundPoints(data.round)} POINTS PER QUESTION`;
   curtain.classList.remove('hidden');
   // Keep the cinematic title visible until Crixus finishes the announcement.
   // The question narration callback dismisses the curtain.
@@ -743,7 +743,8 @@ function renderGame(data) {
       $('roundCurtain').classList.add('hidden');
     }
   }
-  $('gameMeta').textContent = `ROUND ${data.round} · QUESTION ${((data.number - 1) % 5) + 1}/5`;
+  $('gameMeta').textContent = data.number === data.total ? 'THE FINAL QUESTION · 500 POINTS' : `ROUND ${data.round} · QUESTION ${((data.number - 1) % 5) + 1}/5`;
+  $('gamePanel').classList.toggle('final-question', data.number === data.total && ['question', 'answering'].includes(data.phase));
   $('gameHeading').textContent = data.phase === 'finished' ? 'GAME COMPLETE' : '';
   $('category').textContent = data.category || '';
   $('questionText').textContent = data.question || '';

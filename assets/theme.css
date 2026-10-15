@@ -323,3 +323,135 @@ body:has(#introPanel:not(.hidden)) .shell > h2 {
   color: #fff1d4;
   line-height: 1.5;
 }
+
+/* CENTAUR TRIVIA | CINEMATIC ARENA REDESIGN
+   Layered CSS scenery keeps every game control real and clickable. */
+:root {
+  --charcoal: #363531;
+  --bistre: #462416;
+  --gold: #af8837;
+  --bright-gold: #eeb329;
+  --forest: #125d0d;
+  --cream: #fff2d0;
+}
+body:not(:has(.narrow)) {
+  background:
+    radial-gradient(ellipse 65% 50% at 50% 50%, #70432244 0%, transparent 80%),
+    repeating-linear-gradient(90deg, transparent 0 11%, #10090544 11.2% 11.8%, transparent 12.2% 24%),
+    linear-gradient(180deg, #120c0a, #3d281b 39%, #20140e 75%, #100b09);
+}
+body:not(:has(.narrow))::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  opacity: .65;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 12% 18%, #eeb32933, transparent 21%),
+    radial-gradient(ellipse at 88% 18%, #eeb32933, transparent 21%),
+    linear-gradient(90deg, #0e0908 0 5%, #765031 6%, #24150f 9%, transparent 12% 88%, #24150f 91%, #765031 94%, #0e0908 95% 100%);
+}
+body:not(:has(.narrow)) .shell::before,
+body:not(:has(.narrow)) .shell::after {
+  content: "";
+  position: fixed;
+  top: 15%;
+  width: clamp(50px, 8vw, 130px);
+  height: 48vh;
+  pointer-events: none;
+  opacity: .48;
+  background:
+    radial-gradient(circle at 50% 9%, #ff5133 0 3px, transparent 5px),
+    radial-gradient(circle at 65% 9%, #ff5133 0 3px, transparent 5px),
+    linear-gradient(135deg, transparent 25%, #927148 26% 31%, transparent 32%),
+    linear-gradient(45deg, transparent 25%, #927148 26% 31%, transparent 32%),
+    linear-gradient(#82603b, #322017);
+  clip-path: polygon(35% 0, 75% 0, 85% 12%, 78% 23%, 100% 40%, 76% 44%, 79% 100%, 23% 100%, 26% 44%, 0 40%, 25% 22%, 22% 11%);
+  filter: drop-shadow(0 0 20px #000);
+}
+body:not(:has(.narrow)) .shell::before { left: 1.5vw; }
+body:not(:has(.narrow)) .shell::after { right: 1.5vw; transform: scaleX(-1); }
+body:not(:has(.narrow)) .shell { isolation: isolate; }
+body:not(:has(.narrow)) .shell > * { position: relative; }
+body:not(:has(.narrow)) .shell > .fullscreen-corner,
+body:not(:has(.narrow)) .shell > .pause-corner,
+body:not(:has(.narrow)) .shell > .pause-overlay,
+body:not(:has(.narrow)) .shell > .round-curtain,
+body:not(:has(.narrow)) .shell > .leaderboard-stage { position: fixed; }
+body:not(:has(.narrow)) h1 { font-family: Georgia,serif; font-weight: 900; text-transform: uppercase; letter-spacing: .09em; }
+body:not(:has(.narrow)) .card { border: 2px solid var(--gold); background: linear-gradient(135deg,#352016f5,#1b120ff7); box-shadow: 0 24px 70px #000a,inset 0 0 0 5px #af883724,0 0 22px #af883729; }
+body:not(:has(.narrow)) button:not(.fullscreen-corner):not(.pause-corner) { transition: transform .2s, filter .2s, box-shadow .2s; }
+body:not(:has(.narrow)) button:not(:disabled):hover { filter: brightness(1.13); }
+body:not(:has(.narrow)) button:not(:disabled):active { transform: scale(.98); }
+.arena-lobby .lobby-columns { position: relative; z-index: 1; }
+.lobby-join,.lobby-players { backdrop-filter: blur(8px); }
+.lobby-join .room-code { text-shadow: 0 0 24px #eeb329aa; }
+.lobby-players .player { background: linear-gradient(90deg,#322116,#4a301e); border-color: #af883780; }
+#gamePanel[data-phase=question],
+#gamePanel[data-phase=answering],
+#gamePanel[data-phase=reveal] {
+  background:
+    radial-gradient(ellipse at 50% 40%,#6a3c1c88,transparent 70%),
+    repeating-linear-gradient(90deg,#28170f 0 14%,#4a301d 14.3% 15%,#1e130f 15.4% 17%),
+    linear-gradient(#271710,#130d0a) !important;
+  border: 3px double #af8837;
+  box-shadow: inset 0 0 100px #080605,0 0 40px #af88372b;
+}
+#gamePanel[data-phase=question] .big-question,
+#gamePanel[data-phase=answering] .big-question {
+  padding: clamp(24px,5vw,60px);
+  width: min(1120px,90%);
+  background: linear-gradient(135deg,#2e1d17ee,#492b19ee);
+  border: 2px solid #af8837;
+  border-radius: 18px;
+  box-shadow: 0 12px 45px #000a,inset 0 0 30px #af88371e;
+  font-family: Georgia,serif;
+}
+#gamePanel[data-phase=reveal] #gameHeading { color: var(--bright-gold); }
+#gamePanel[data-phase=reveal] .host-choice.correct { border-radius: 18px; font-family: Georgia,serif; }
+#gamePanel.final-question { background: radial-gradient(ellipse at 50% 20%,#ab763966,transparent 65%), repeating-linear-gradient(90deg,#3c2017 0 8%,#21120f 9% 13%,#5b2e20 14% 20%) !important; }
+#gamePanel.final-question::before { content:"✦  THE FINAL QUESTION  ✦"; color:#f1c767; font-size:clamp(18px,3vw,34px); letter-spacing:.15em; text-shadow:0 0 24px #eeb329; }
+.round-curtain { background: radial-gradient(ellipse at 50% 48%,#5c3a29,#21130f 60%,#0d0908); }
+.round-curtain::before { content:""; position:absolute; inset:0; background:radial-gradient(circle at 20% 25%,#eeb32933 1px,transparent 3px),radial-gradient(circle at 75% 70%,#eeb32944 1px,transparent 3px); background-size:130px 150px,180px 210px; animation:goldDust 12s linear infinite; }
+.round-curtain .curtain-rays { opacity:.14; }
+.round-curtain .curtain-content { border:3px double #eeb329; background:#21130fe8; box-shadow:0 0 70px #af88374a,inset 0 0 35px #af88372e; }
+@keyframes goldDust { to { background-position:0 -260px,0 -420px; } }
+.leaderboard-stage { background:radial-gradient(ellipse at 50% 40%,#59371e,#1e130e 70%,#0c0908); }
+.leaderboard-stage .board-rows { max-height:54vh; overflow-y:auto; padding:4px; }
+.leaderboard-stage .board-row { background:linear-gradient(90deg,#4b301f,#241811); border:1px solid #af8837; box-shadow:0 4px 16px #0005; }
+.leaderboard-stage .board-row.first-place { background:linear-gradient(90deg,#775121,#382416); border-color:#eeb329; box-shadow:0 0 25px #eeb32944; }
+.leaderboard-stage:has(#championActions:not(.hidden))::after { content:"✦   ✧   ✦   ✧   ✦"; position:absolute; top:12%; font-size:clamp(30px,5vw,70px); color:#eeb32988; animation:goldDust 12s linear infinite; pointer-events:none; }
+#gamePanel[data-phase=intermission] { background:radial-gradient(circle at 50% 35%,#5a3926,#20140e 75%); }
+#gamePanel[data-phase=intermission] #gameHeading { font-size:clamp(45px,7vw,95px); color:var(--bright-gold); }
+#gamePanel[data-phase=intermission] #gameButton { background:linear-gradient(#247a21,#125d0d); color:#fff2d0; }
+/* Phone controller: one star, four vertically stacked forest-green answer cards. */
+body:has(.narrow) {
+  background:radial-gradient(ellipse at 50% 0%,#69411f,#2c1c15 55%,#110d0b);
+}
+.narrow { max-width:490px; padding:24px 15px 48px; }
+.narrow h1 { font-family:Georgia,serif; color:var(--bright-gold); text-shadow:0 4px 20px #000; }
+.narrow h1 span { color:#fff2d0; }
+.narrow .phone-tagline { font-size:12px; letter-spacing:3px; color:#d7b36b; }
+.narrow .card { background:linear-gradient(145deg,#2f1e16,#1b120e); border:2px solid #af8837; box-shadow:0 12px 42px #0009,inset 0 0 0 4px #af88371e; }
+.narrow .answer-choices { grid-template-columns:1fr; gap:14px; }
+.narrow .answer-option {
+  display:flex;
+  align-items:center;
+  gap:16px;
+  min-height:80px;
+  padding:16px 20px;
+  border:2px solid #af8837;
+  border-radius:13px;
+  background:linear-gradient(120deg,#196a18,#0d420c);
+  color:#fff8e8;
+  box-shadow:inset 0 1px 0 #eeb32933,0 6px 16px #0006;
+  font:600 clamp(16px,4.2vw,20px)/1.3 system-ui,Arial,sans-serif;
+  text-align:left;
+}
+.narrow .answer-star { color:#eeb329; font-size:30px; line-height:1; flex:0 0 30px; text-shadow:0 0 10px #eeb32944; }
+.narrow .answer-option.chosen { background:linear-gradient(#f0c65a,#ae7f27); border-color:#fff1bb; color:#22160c; box-shadow:0 0 25px #eeb32977; }
+.narrow .answer-option.chosen .answer-star { color:#6d450b; }
+.narrow .answer-option:disabled:not(.chosen) { opacity:.62; }
+.narrow #playerClock { color:#eeb329; font-size:38px; }
+.narrow #answerStatus { font-weight:700; color:#f7d987; }
+@media(max-width:600px) { body:not(:has(.narrow)) .shell::before,body:not(:has(.narrow)) .shell::after { display:none; } }

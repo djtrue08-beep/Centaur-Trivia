@@ -51,9 +51,10 @@ function showLeaderboard(data) {
   const heading = document.createElement('h3');
   heading.textContent = data.phase === 'finished' ? 'FINAL STANDINGS' : 'LEADERBOARD';
   board.append(heading);
-  (data.leaderboard || []).forEach((person, index) => {
+  (data.leaderboard || []).slice(0, data.phase === 'finished' ? 12 : 5).forEach((person, index) => {
     const row = document.createElement('p');
-    row.textContent = `${index + 1}. ${person.name} — ${person.score} points`;
+    const rank = (data.leaderboard || []).findIndex(p => p.score === person.score) + 1;
+    row.textContent = `${rank}. ${person.name} — ${person.score} points`;
     board.append(row);
   });
   if (data.phase === 'finished' && data.leaderboard?.length) {
@@ -69,7 +70,7 @@ function renderGame(data) {
   $('playerGame').classList.remove('hidden');
   $('playerMeta').textContent = `ROUND ${data.round} · QUESTION ${data.number}/${data.total}`;
   $('playerHeading').textContent = 'CHOOSE YOUR ANSWER';
-  $('playerQuestion').textContent = ['question', 'intro'].includes(data.phase) ? '' : (data.question || '');
+  $('playerQuestion').textContent = ''; // Questions appear on the host screen only.
   $('playerLeaderboard').replaceChildren();
   $('answerChoices').replaceChildren();
   $('playerClock').textContent = '';
@@ -90,7 +91,12 @@ function renderGame(data) {
     (Array.isArray(data.choices) ? data.choices : []).forEach((choice, index) => {
       const button = document.createElement('button');
       button.className = 'answer-option';
-      button.textContent = '⭐ ' + choice;
+      const star = document.createElement('span');
+      star.className = 'answer-star';
+      star.textContent = '★';
+      const answerText = document.createElement('span');
+      answerText.textContent = choice;
+      button.append(star, answerText);
       button.disabled = data.paused || data.myAnswer !== null || remaining === 0;
       if (data.myAnswer === index) button.classList.add('chosen');
       button.onclick = () => submit(data.choiceIndices?.[index] ?? index);
