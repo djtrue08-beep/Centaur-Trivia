@@ -42,7 +42,7 @@ function syncHostControls() {
   const active = introComplete && !!code && !['finished', 'lobby'].includes($('gamePanel').dataset.phase);
   $('setupControls').classList.toggle('hidden', active);
   $('pauseToggle').classList.toggle('hidden', !active || gamePaused);
-  $('fullscreenToggle').classList.toggle('hidden', !active);
+  $('fullscreenToggle').classList.remove('hidden');
   $('pauseOverlay').classList.toggle('hidden', !gamePaused);
   if (!active && !gamePaused) $('voiceSettings').classList.add('hidden');
 }
@@ -342,7 +342,7 @@ function voiceSelection() {
 }
 $('testVoice').onclick = () => {
   if (gamePaused && CrixusVoice.supported) speechSynthesis.resume();
-  CrixusVoice.speakWithSettings('I am Crixus the Centaur. Welcome to my arena!', voiceSelection());
+  CrixusVoice.speakWithSettings('Hey everybody, I am Crixus. Welcome to Centaur Trivia. Let us have some fun!', voiceSelection());
 };
 $('saveVoice').onclick = () => {
   CrixusVoice.save(voiceSelection());
@@ -361,7 +361,8 @@ function showIntro() {
   $('introHeading').textContent = 'CENTAUR TRIVIA';
   $('introText').textContent = 'WELCOME TO THE ARENA';
   $('introContinue').disabled = true;
-  const opening = 'Welcome, mortals, to Centaur Trivia! I am Crixus, master of this arena. Listen well! I shall read each question. Choose one of four answers on your phone before time runs out. Once chosen, your answer is locked. Each correct answer earns points, and I shall announce the stakes before each round. Now, let the battle of minds begin!';
+  resetDialogueDecks();
+  const opening = nextDialogue('introductions') + ' I will read the questions, and you will choose one of four answers on your phone. Once you lock in, that is your answer. Correct answers earn points. Let us play!';
   const ready = () => {
     if (!introActive || sequence !== introSequenceToken) return;
     $('introHeading').textContent = 'CENTAUR TRIVIA';
@@ -468,35 +469,174 @@ function startQuestionTimer(key) {
   gameAction('timer');
 }
 
-const revealLines = [
-  'Knowledge favors the worthy!',
-  'Some of you have pleased the gods. Others, not so much.',
-  'The arena rewards sharp minds!',
-  'Ha! That separated warriors from spectators!',
-  'The gods have spoken. Onward!',
-  'Impressive. Perhaps there is hope for you yet.',
-  'A simple challenge. Or so I thought!',
-  'I expected brilliance. Some of you delivered!',
-  'The crown is not won by guessing wildly!',
-  'Another test conquered. Or perhaps endured.',
-  'Your wisdom has been weighed!',
-  'Not everyone can command the arena!',
-  'Even the mighty must learn!',
-  'The truth stands before you!',
-  'That one demanded a worthy mind!',
-  'Somewhere, a scholar just sighed.',
-  'An admirable effort, mortals!',
-  'The arena grows more interesting!',
-  'Fortune favors the prepared!',
-  'Onward, before the gods grow bored!'
-];
-let lastRevealLine = -1;
-function randomRevealLine() {
-  let index = Math.floor(Math.random() * (revealLines.length - 1));
-  if (index >= lastRevealLine) index++;
-  lastRevealLine = index;
-  return revealLines[index];
+const dialogueLibrary = {
+  "introductions": [
+    "What's going on everybody? I'm Crixus, and welcome to Centaur Trivia!",
+    "Welcome in, everybody! Crixus here, and I've got questions for you.",
+    "Good to see you all! I'm Crixus, and tonight we're putting that confidence to the test.",
+    "Welcome to Centaur Trivia! I'm Crixus, and I'm ready to see what you know.",
+    "Hey, everybody! Crixus on the mic. Let's have a little friendly competition.",
+    "Welcome, players! I'm Crixus, and I hope you brought your thinking caps.",
+    "What's happening, family? I'm Crixus, and we're about to have some fun.",
+    "Welcome to the game! I'm Crixus, and I promise the questions won't bite.",
+    "Glad you made it! Crixus here. Let's find out who's been paying attention.",
+    "Everybody ready? I'm Crixus. Let's get this trivia night rolling."
+  ],
+  "questions": [
+    "Let's see what you've got.",
+    "Here's one to think about.",
+    "Keep your eyes on the screen.",
+    "Time to put that knowledge to work.",
+    "Don't overthink this one.",
+    "Ready for another?",
+    "Here's your next challenge.",
+    "Trust your instincts.",
+    "Let's keep the momentum going.",
+    "This one could shake things up.",
+    "Alright, here we go.",
+    "Let's see who's locked in.",
+    "Pay attention to this one.",
+    "A little brainpower, please.",
+    "Let's make this interesting.",
+    "Somebody's going to love this question.",
+    "Let's see who's on a roll.",
+    "Phones ready? Here it comes.",
+    "I've got another one for you.",
+    "Now we're getting somewhere."
+  ],
+  "reveals": [
+    "There's your answer! Hope you trusted yourself.",
+    "Some of y'all knew that. Some of y'all guessed with confidence.",
+    "That's the one! How'd everybody do?",
+    "Now we know. No changing your answer after the fact!",
+    "There it is! Somebody just learned something.",
+    "If you got that right, take a quiet victory lap.",
+    "Some of y'all are on fire tonight.",
+    "That's your answer. No arguing with the screen.",
+    "Somebody out there is feeling real smart.",
+    "Well, that was interesting!",
+    "The correct answer has spoken for itself.",
+    "A few of y'all probably surprised yourselves.",
+    "I can hear the excuses warming up already.",
+    "That's how the points are earned.",
+    "The scoreboard might get interesting after that one.",
+    "No shame in learning something new.",
+    "You either knew it or made a very lucky guess.",
+    "This Centaur respects a solid answer.",
+    "If you missed it, there's another chance coming.",
+    "That one definitely separated the guesses from the knowledge.",
+    "The answer is in. Let's keep moving.",
+    "Somebody's confidence just went up a notch.",
+    "I hope you didn't second-guess yourself.",
+    "A little trivia wisdom for the road.",
+    "And that's another one in the books."
+  ],
+  "rounds": [
+    "Let's keep the good energy going.",
+    "New round, fresh opportunity.",
+    "The competition is heating up.",
+    "Everybody's still got a shot.",
+    "Time to turn things up a little.",
+    "Let's see who can make a move.",
+    "New round. Same confidence. Better answers, hopefully.",
+    "Stay focused. This could change everything.",
+    "Nobody's out of it yet.",
+    "Let's get right back to it.",
+    "A fresh round means fresh chances.",
+    "The points are getting serious now.",
+    "Keep your phones ready and your minds sharp.",
+    "This Centaur likes a close contest.",
+    "Let's see who rises to the challenge."
+  ],
+  "leaderboards": [
+    "Let's check the standings.",
+    "Time to see who's making moves.",
+    "Here's where everybody stands.",
+    "Let's find out who's leading the pack.",
+    "The numbers don't lie. Let's take a look.",
+    "Somebody's climbing that leaderboard.",
+    "Let's see who came to compete.",
+    "The scoreboard has a story to tell.",
+    "Who's up, who's down? Let's see.",
+    "Let's check on our front-runners.",
+    "There might be a surprise in these standings.",
+    "Take a look at that leaderboard.",
+    "The race is getting interesting.",
+    "Let's see who has bragging rights right now.",
+    "Here come the standings. No excuses!"
+  ],
+  "finals": [
+    "This is it! One last question.",
+    "The final question is here. Make it count.",
+    "Alright, everybody, this is your moment.",
+    "One more question before we crown a champion.",
+    "Time for the final challenge. Stay sharp.",
+    "Here's where things get interesting. Final question!",
+    "You've made it this far. Finish strong.",
+    "One question left. No pressure. Well, maybe a little.",
+    "Let's see who can close this thing out.",
+    "This Centaur loves a dramatic finish. Here we go!"
+  ],
+  "champions": [
+    "We have our champion! Give it up for a well-earned win!",
+    "That's a wrap! Congratulations to our winner!",
+    "Somebody came ready to play tonight. Congratulations!",
+    "We have a winner! Everybody else, there's always next time.",
+    "Big congratulations! That's how you finish a trivia game.",
+    "And the crown goes to our champion! Well played.",
+    "That's what I'm talking about! Congratulations to the winner.",
+    "The results are in, and we've got our champion!",
+    "Respect where it's due. Excellent game!",
+    "A strong finish and a well-deserved victory!",
+    "This Centaur tips his hat to tonight's winner.",
+    "Give our champion some love! That was a good game.",
+    "We have a champion! Go ahead and enjoy those bragging rights.",
+    "What a finish! Congratulations to our winner.",
+    "That's the game, everybody! Let's hear it for the champion!"
+  ],
+  "breaks": [
+    "We're taking a quick break. Don't wander too far.",
+    "Short intermission, everybody. We'll be right back.",
+    "Time to stretch those legs. All four, if you've got them.",
+    "Take a moment to reset. More trivia is coming.",
+    "Quick break. Save the trash talk for the next round.",
+    "We're pausing for a moment. Stay close.",
+    "Grab some water and come back ready.",
+    "Take a breather. The next round is waiting.",
+    "We'll be back shortly. Don't lose that momentum.",
+    "Intermission time. You've earned a quick rest."
+  ],
+  "lobby": [
+    "Back to the lobby, everybody. Let's get ready for another round.",
+    "We're resetting the game. Hang tight, everyone.",
+    "New game coming up. Same crew, fresh start.",
+    "We're back in the lobby. Get those phones ready.",
+    "That's a reset. Let's get the next game started."
+  ]
+};
+
+const dialogueDecks = {};
+function resetDialogueDecks() {
+  for (const category of Object.keys(dialogueLibrary)) {
+    dialogueDecks[category] = [];
+  }
 }
+function nextDialogue(category) {
+  const choices = dialogueLibrary[category];
+  if (!choices || !choices.length) return '';
+  if (!dialogueDecks[category] || !dialogueDecks[category].length) {
+    // Shuffle a full deck so each line plays before the next cycle begins.
+    const indices = choices.map((_, index) => index);
+    for (let index = indices.length - 1; index > 0; index--) {
+      const other = Math.floor(Math.random() * (index + 1));
+      [indices[index], indices[other]] = [indices[other], indices[index]];
+    }
+    dialogueDecks[category] = indices;
+  }
+  return choices[dialogueDecks[category].pop()];
+}
+resetDialogueDecks();
+
 function roundPoints(round) {
   return mode === 'quick' ? round * 100 : Math.ceil(round / 2) * 100;
 }
@@ -518,24 +658,26 @@ function narratePhase(data, key) {
       });
     };
     if (isFinal) {
-      CrixusVoice.speak('Mortals! The final challenge has arrived. Five hundred points await those who answer correctly. Fail, and you earn nothing! Prove your worth!', readQuestion);
+      CrixusVoice.speak(nextDialogue('finals') + ' This final question is worth five hundred points.', readQuestion);
     } else if (isRoundStart) {
-      CrixusVoice.speak(`Round ${data.round}! Each correct answer earns ${roundPoints(data.round)} points. Let the contest begin!`, readQuestion);
+      CrixusVoice.speak(`Round ${data.round}! Correct answers are worth ${roundPoints(data.round)} points. ` + nextDialogue('rounds'), readQuestion);
+    } else if (Math.random() < 0.18) {
+      CrixusVoice.speak(nextDialogue('questions'), readQuestion);
     } else {
       readQuestion();
     }
   } else if (data.phase === 'reveal') {
-    CrixusVoice.speak(randomRevealLine(), () => scheduleRevealAdvance(key));
+    CrixusVoice.speak(nextDialogue('reveals'), () => scheduleRevealAdvance(key));
   } else if (data.phase === 'leaderboard') {
-    CrixusVoice.speak(`Round ${data.round} is complete. Behold the standings! The arena remembers its champions.`);
+    CrixusVoice.speak(`Round ${data.round} is complete. ` + nextDialogue('leaderboards'));
   } else if (data.phase === 'intermission') {
-    CrixusVoice.speak('Even champions require a moment of rest. We shall resume shortly.');
+    CrixusVoice.speak(nextDialogue('breaks'));
   } else if (data.phase === 'finished') {
     const highest = data.leaderboard?.[0]?.score;
     const count = (data.leaderboard || []).filter(p => p.score === highest).length;
     CrixusVoice.speak(count === 1
-      ? 'Behold! One champion stands victorious. The crown is yours, mortal!'
-      : `By the gods! The crown shall be shared by ${count} champions today! The arena has witnessed an extraordinary tie!`);
+      ? nextDialogue('champions')
+      : `We have ${count} champions tied for the win! ` + nextDialogue('champions'));
   }
 }
 
