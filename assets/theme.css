@@ -455,3 +455,58 @@ body:has(.narrow) {
 .narrow #playerClock { color:#eeb329; font-size:38px; }
 .narrow #answerStatus { font-weight:700; color:#f7d987; }
 @media(max-width:600px) { body:not(:has(.narrow)) .shell::before,body:not(:has(.narrow)) .shell::after { display:none; } }
+
+
+/* CINEMATIC ARTWORK PACK v2: real SVG scene assets loaded by host pages */
+body:not(:has(.narrow)) {
+  background: #100b09 url('/assets/arena-stage.svg') center center / cover fixed no-repeat !important;
+}
+body:not(:has(.narrow))::before,
+body:not(:has(.narrow)) .shell::before,
+body:not(:has(.narrow)) .shell::after { display: none !important; }
+body:not(:has(.narrow)) .shell { max-width: 1540px; }
+body:not(:has(.narrow)) .shell > .eyebrow { text-shadow: 0 3px 16px #000; }
+body:not(:has(.narrow)) .shell > h1 { text-shadow: 0 6px 22px #000, 0 0 36px #a87a35; }
+#lobbyPanel { padding: 18px max(2vw, 12px); }
+.lobby-columns .card { background: #1b100de8 !important; border: 3px double #c49b53 !important; backdrop-filter: blur(10px); }
+#gamePanel[data-phase=question],
+#gamePanel[data-phase=answering],
+#gamePanel[data-phase=reveal] {
+  background: linear-gradient(#110b08a8,#110b08cf), url('/assets/arena-stage.svg') center / cover no-repeat !important;
+  min-height: 84vh;
+  border: 4px double #c89a4b;
+}
+#gamePanel.final-question {
+  background: linear-gradient(#160d0a77,#160d0ac4), url('/assets/final-stage.svg') center / cover no-repeat !important;
+}
+#gamePanel[data-phase=intermission] {
+  background: linear-gradient(#120c0a77,#120c0ac0), url('/assets/arena-stage.svg') center / cover no-repeat !important;
+  min-height: 85vh;
+}
+.round-curtain {
+  background: linear-gradient(#0c0906a0,#0c0906b0), url('/assets/transition-stage.svg') center / cover no-repeat !important;
+}
+.leaderboard-stage {
+  background: linear-gradient(#120b08a0,#120b08dc), url('/assets/arena-stage.svg') center / cover no-repeat !important;
+}
+.leaderboard-stage:has(#championActions:not(.hidden)) {
+  background: linear-gradient(#1b0d0777,#1b0d07b5), url('/assets/final-stage.svg') center / cover no-repeat !important;
+}
+#gamePanel[data-phase=question] .big-question,
+#gamePanel[data-phase=answering] .big-question {
+  background: linear-gradient(140deg,#1b110df0,#422818f0);
+  border: 4px double #d6ab59;
+  box-shadow: 0 15px 70px #000d, inset 0 0 50px #d9a6511f;
+  text-shadow: 0 3px 15px #000;
+}
+#gamePanel[data-phase=reveal] .host-choice.correct { background: linear-gradient(130deg,#41260e,#a67d2d,#40220f); }
+#gamePanel[data-phase=question] #hostChoices,
+#gamePanel[data-phase=answering] #hostChoices { display: none !important; }
+.leaderboard-stage .board-rows { background: #140d09b8; padding: 16px; border: 3px double #b88a3e; border-radius: 16px; }
+.leaderboard-stage .board-row { backdrop-filter: blur(6px); }
+.narrow .answer-option { background: linear-gradient(115deg,#196a18,#0c390b); }
+.narrow .answer-option.chosen { background: linear-gradient(#f0c65a,#ae7f27); }
+@media (max-width: 650px) {
+  #gamePanel[data-phase=question] .big-question,
+  #gamePanel[data-phase=answering] .big-question { width: 100%; padding: 20px; }
+}
