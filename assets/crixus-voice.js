@@ -46,6 +46,10 @@ const CrixusVoice = (() => {
   }
   return {
     speak, cancel, voices, save,
+    speakQuestion(text, onComplete = () => {}) {
+      // Chrome TTS is reserved for the digital assistant's questions.
+      speak(text, onComplete, { ...settings, rate: 1.05, pitch: 0.80 });
+    },
     speakWithSettings(text, previewSettings) { speak(text, () => {}, previewSettings); },
     get settings() { return { ...settings }; },
     get enabled() { return enabled; },
