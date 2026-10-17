@@ -323,3 +323,119 @@ body:has(#introPanel:not(.hidden)) .shell > h2 {
   color: #fff1d4;
   line-height: 1.5;
 }
+
+
+/* Arena visual refresh: presentation-first gold and charcoal design */
+:root {
+  --arena-brown: #462416;
+  --arena-charcoal: #363531;
+  --arena-gold: #eeb329;
+  --arena-gilded: #af8837;
+  --arena-green: #125d0d;
+}
+body:not(:has(.narrow)) {
+  background:
+    radial-gradient(ellipse at 50% -12%, #9b6c302e, transparent 55%),
+    repeating-linear-gradient(120deg, transparent 0 85px, #eeb32906 86px 88px),
+    linear-gradient(155deg, #241610, #363531 48%, #1b100d);
+}
+body:not(:has(.narrow)) .shell > h1 {
+  font-size: clamp(48px, 7vw, 84px);
+  letter-spacing: .075em;
+  line-height: 1;
+  margin: 14px 0 8px;
+  background: linear-gradient(180deg, #fff4c5, #eeb329 60%, #986a27);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 5px 12px #0008);
+}
+body:not(:has(.narrow)) .shell > h1 span { color: #fff1c5; }
+body:not(:has(.narrow)) .shell > .eyebrow {
+  color: #f4c96f;
+  letter-spacing: .42em;
+}
+.lobby-columns .card {
+  background:
+    linear-gradient(140deg, #eeb3290d, transparent 38%),
+    linear-gradient(145deg, #3b261a, #1d1410);
+  border: 1px solid #bd9148;
+  box-shadow: 0 24px 65px #0008, inset 0 0 0 1px #eeb32924;
+}
+.lobby-join .room-code {
+  font-size: clamp(48px, 7vw, 78px);
+  letter-spacing: .16em;
+  color: #fff4c5;
+  text-shadow: 0 0 30px #eeb3296e;
+}
+.lobby-join .qr {
+  border: 8px solid #fff9ec;
+  outline: 2px solid #eeb329;
+  box-shadow: 0 0 35px #eeb32930;
+  border-radius: 7px;
+}
+.lobby-players h3 {
+  padding-bottom: 15px;
+  border-bottom: 1px solid #af883777;
+}
+.lobby-players .player {
+  border-left: 3px solid #eeb329;
+  background: linear-gradient(100deg, #55351f, #34231b);
+}
+#gamePanel {
+  isolation: isolate;
+  overflow: hidden;
+  border: 2px solid #af8837;
+  box-shadow: 0 0 0 6px #eeb32914, 0 25px 90px #0009, inset 0 0 75px #af88371a;
+}
+#gamePanel::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  z-index: -1;
+  background: repeating-conic-gradient(from 0deg, #eeb3290b 0deg 7deg, transparent 8deg 28deg);
+  animation: arenaLights 65s linear infinite;
+}
+#gamePanel .big-question {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(34px, 5vw, 78px);
+  line-height: 1.16;
+  text-wrap: balance;
+  text-shadow: 0 4px 18px #0009;
+}
+#gamePanel #category {
+  border: 1px solid #af883766;
+  border-radius: 999px;
+  padding: 7px 18px;
+  background: #21140d99;
+}
+#gamePanel .gold-clock {
+  box-shadow: 0 0 0 4px #eeb32926, 0 0 42px #eeb32926;
+}
+.round-curtain {
+  background:
+    radial-gradient(ellipse at center, #815022 0%, #3b2418 53%, #130b09 100%);
+}
+.curtain-content {
+  background: linear-gradient(90deg, transparent, #21140cb3 18%, #21140cb3 82%, transparent);
+  box-shadow: 0 25px 80px #0006;
+}
+.leaderboard-stage .board-row {
+  box-shadow: 0 9px 25px #0005, inset 0 1px #f1ce7a1c;
+}
+.leaderboard-stage .board-row.first-place {
+  box-shadow: 0 0 35px #eeb32955, inset 0 1px #ffe1a74d;
+}
+.narrow .answer-option {
+  background: linear-gradient(180deg, #186b13, #125d0d);
+  border: 2px solid #af8837;
+  color: #fff8e7;
+}
+.narrow .answer-option.chosen {
+  background: linear-gradient(180deg, #277e21, #175910);
+  border-color: #eeb329;
+  box-shadow: 0 0 0 2px #eeb32944;
+}
+@media (prefers-reduced-motion: reduce) {
+  #gamePanel::before { animation: none; }
+}
