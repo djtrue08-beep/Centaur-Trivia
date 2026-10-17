@@ -155,8 +155,8 @@ function openVoiceSettings() {
   $('voiceSettings').classList.remove('hidden');
   populateVoices();
   $('voiceSelect').value = CrixusVoice.settings.voiceURI || '';
-  $('voiceRate').value = CrixusVoice.settings.rate ?? 0.92;
-  $('voicePitch').value = CrixusVoice.settings.pitch ?? 0.83;
+  $('voiceRate').value = CrixusVoice.settings.rate ?? 1.05;
+  $('voicePitch').value = CrixusVoice.settings.pitch ?? 0.80;
   syncVoiceLabels();
 }
 function closeVoiceSettings() {
@@ -324,8 +324,8 @@ function populateVoices() {
 }
 populateVoices();
 if (CrixusVoice.supported) speechSynthesis.addEventListener('voiceschanged', populateVoices);
-$('voiceRate').value = CrixusVoice.settings.rate ?? 0.92;
-$('voicePitch').value = CrixusVoice.settings.pitch ?? 0.83;
+$('voiceRate').value = CrixusVoice.settings.rate ?? 1.05;
+$('voicePitch').value = CrixusVoice.settings.pitch ?? 0.80;
 function syncVoiceLabels() {
   $('rateValue').textContent = $('voiceRate').value;
   $('pitchValue').textContent = $('voicePitch').value;
