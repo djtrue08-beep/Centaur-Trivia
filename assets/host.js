@@ -362,7 +362,7 @@ function showIntro() {
   $('introText').textContent = 'WELCOME TO THE ARENA';
   $('introContinue').disabled = true;
   resetDialogueDecks();
-  const opening = nextDialogue('introductions') + ' I will read the questions, and you will choose one of four answers on your phone. Once you lock in, that is your answer. Correct answers earn points. Let us play!';
+  const opening = nextDialogue('introductions') + ' My digital assistant will read the questions, and you will choose one of four answers on your phone. Once you lock in, that is your answer. Correct answers earn points. Let us play!';
   const ready = () => {
     if (!introActive || sequence !== introSequenceToken) return;
     $('introHeading').textContent = 'CENTAUR TRIVIA';
@@ -652,7 +652,7 @@ function narratePhase(data, key) {
     const readQuestion = () => {
       if (lastPhaseKey !== key) return;
       $('roundCurtain').classList.add('hidden');
-      CrixusVoice.speak(data.question || '', () => {
+      CrixusVoice.speakQuestion(data.question || '', () => {
         voiceFinished = true;
         startQuestionTimer(key);
       });
@@ -752,7 +752,7 @@ function renderGame(data) {
   $('leaderboard').classList.add('hidden');
   $('voiceHint').classList.toggle('hidden', data.phase !== 'question');
   $('voiceHint').textContent = CrixusVoice.enabled
-    ? 'Crixus is reading the question. The timer starts when he finishes.'
+    ? 'The digital assistant is reading the question. The timer starts when it finishes.'
     : 'Voice is off. The timer starts automatically; manual start is also available.';
   $('gameButton').classList.add('hidden');
   $('hostChoices').replaceChildren();
