@@ -25,8 +25,8 @@ const CrixusVoice = (() => {
     const current = token;
     if (!enabled || !supported || !text) { onComplete(); return; }
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = Number((previewSettings || settings).rate ?? 0.92);
-    utterance.pitch = Number((previewSettings || settings).pitch ?? 0.83);
+    utterance.rate = Number((previewSettings || settings).rate ?? 1.05);
+    utterance.pitch = Number((previewSettings || settings).pitch ?? 0.80);
     utterance.volume = Number(settings.volume ?? 1);
     const available = voices();
     const selected = available.find(v => v.voiceURI === (previewSettings || settings).voiceURI);
