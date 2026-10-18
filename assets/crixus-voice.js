@@ -46,6 +46,10 @@ const CrixusVoice = (() => {
   }
   return {
     speak, cancel, voices, save,
+    // Questions are intentionally delegated to Chrome, never to a recorded Crixus clip.
+    speakQuestion(text, onComplete = () => {}) {
+      speak(text, onComplete);
+    },
     speakWithSettings(text, previewSettings) { speak(text, () => {}, previewSettings); },
     get settings() { return { ...settings }; },
     get enabled() { return enabled; },
