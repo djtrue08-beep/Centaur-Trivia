@@ -9,6 +9,18 @@ const CrixusVoice = (() => {
   let enabled = supported && settings.enabled !== false;
   let token = 0;
   let activeUtterance = null;
+  let activeAudio = null;
+  const unavailableClips = new Set();
+
+  function clipId(text) {
+    // Stable identifier for the exact spoken line, including combined announcements.
+    let hash = 2166136261;
+    for (const character of text) {
+      hash ^= character.charCodeAt(0);
+      hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0).toString(16).padStart(8, '0');
+  }
 
   function voices() { return supported ? synth.getVoices() : []; }
   function save(next) {
@@ -18,9 +30,15 @@ const CrixusVoice = (() => {
   function cancel() {
     token++;
     if (supported) synth.cancel();
+    if (activeAudio) {
+      activeAudio.pause();
+      activeAudio.removeAttribute('src');
+      activeAudio.load();
+      activeAudio = null;
+    }
     activeUtterance = null;
   }
-  function speak(text, onComplete = () => {}, previewSettings = null) {
+  function speakBrowser(text, onComplete = () => {}, previewSettings = null) {
     cancel();
     const current = token;
     if (!enabled || !supported || !text) { onComplete(); return; }
@@ -44,11 +62,44 @@ const CrixusVoice = (() => {
     activeUtterance = utterance;
     synth.speak(utterance);
   }
+  function speak(text, onComplete = () => {}, previewSettings = null) {
+    if (previewSettings || !text || !enabled) {
+      speakBrowser(text, onComplete, previewSettings);
+      return;
+    }
+    cancel();
+    const current = token;
+    const id = clipId(text);
+    if (unavailableClips.has(id)) {
+      speakBrowser(text, onComplete);
+      return;
+    }
+    const audio = new Audio(`/assets/audio/crixus-${id}.mp3`);
+    activeAudio = audio;
+    audio.onended = () => {
+      if (current !== token) return;
+      activeAudio = null;
+      onComplete();
+    };
+    audio.onerror = () => {
+      if (current !== token) return;
+      activeAudio = null;
+      unavailableClips.add(id);
+      speakBrowser(text, onComplete);
+    };
+    audio.play().catch(() => {
+      if (current !== token) return;
+      activeAudio = null;
+      speakBrowser(text, onComplete);
+    });
+  }
+
   return {
     speak, cancel, voices, save,
     // Questions are intentionally delegated to Chrome, never to a recorded Crixus clip.
     speakQuestion(text, onComplete = () => {}) {
-      speak(text, onComplete);
+      // The digital assistant always uses Chrome, never Crixus recordings.
+      speakBrowser(text, onComplete);
     },
     speakWithSettings(text, previewSettings) { speak(text, () => {}, previewSettings); },
     get settings() { return { ...settings }; },
