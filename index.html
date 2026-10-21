@@ -1,1 +1,42 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Centaur Trivia</title><link rel="stylesheet" href="/assets/theme.css"></head><body><main class="shell hero"><div class="eyebrow">THE ARENA AWAITS</div><div class="crest">♞</div><h1>CENTAUR <span>TRIVIA</span></h1><h2>Hosted by Crixus the Centaur</h2><p>Enter the arena. Test your knowledge. Claim the crown.</p><div class="card"><h3>HOST AN ARENA</h3><button onclick="location.href='/host.html?mode=quick'">⚡ QUICK GAME</button><button class="secondary" onclick="location.href='/host.html?mode=full'">🏆 FULL GAME</button><p class="muted">Host password required to create a game.</p></div><p><a href="/join.html">Joining as a player? Enter here →</a></p></main></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Centaur Trivia</title>
+  <link rel="stylesheet" href="/assets/theme.css">
+  <style>
+    .device-action { display: none; }
+    @media (min-width: 768px) { .device-action.desktop { display: block; } }
+    @media (max-width: 767px) { .device-action.mobile { display: block; } }
+  </style>
+</head>
+<body>
+  <main class="shell hero">
+    <div class="eyebrow">THE ARENA AWAITS</div>
+    <div class="crest">♞</div>
+    <h1>CENTAUR <span>TRIVIA</span></h1>
+    <h2>Hosted by Crixus the Centaur</h2>
+    <p>Enter the arena. Test your knowledge. Claim the crown.</p>
+    <div class="card">
+      <div class="device-action desktop">
+        <h3>HOST AN ARENA</h3>
+        <button id="hostGame" type="button">HOST GAME</button>
+      </div>
+      <div class="device-action mobile">
+        <h3>JOIN AN ARENA</h3>
+        <button type="button" onclick="location.href='/join.html'">JOIN GAME</button>
+      </div>
+    </div>
+  </main>
+  <script>
+    const isPhone = /Android.*Mobile|iPhone|iPod/i.test(navigator.userAgent) ||
+      window.matchMedia("(max-width: 767px) and (pointer: coarse)").matches;
+    document.querySelector(".device-action.desktop").style.display = isPhone ? "none" : "block";
+    document.querySelector(".device-action.mobile").style.display = isPhone ? "block" : "none";
+    document.getElementById("hostGame").addEventListener("click", () => {
+      location.href = "/host.html?mode=quick";
+    });
+  </script>
+</body>
+</html>
