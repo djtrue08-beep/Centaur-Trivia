@@ -766,7 +766,7 @@ function renderGame(data) {
       const line = document.createElement('div');
 
       line.className = 'host-choice correct';
-      line.textContent = `CORRECT ANSWER: ${correctChoice}`;
+      line.textContent = String(correctChoice).toUpperCase();
 
       $('hostChoices').append(line);
     }
