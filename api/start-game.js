@@ -62,6 +62,16 @@ function selectQuestions(questionBank, roundCount) {
     }
   }
 
+  const finalQuestion = available.pop();
+  if (!finalQuestion) {
+    throw new Error('Not enough questions for the final');
+  }
+  selected.push({
+    question_id: finalQuestion.id,
+    round_number: roundCount + 1,
+    question_number: roundCount * QUESTIONS_PER_ROUND + 1
+  });
+
   return selected;
 }
 
@@ -148,7 +158,7 @@ export default async function handler(req, res) {
     const roundCount = requestedMode === 'quick' ? 3 : 6;
 
     const totalQuestions =
-      roundCount * QUESTIONS_PER_ROUND;
+      roundCount * QUESTIONS_PER_ROUND + 1;
 
     // Retrieve the question bank
     const {
@@ -242,7 +252,7 @@ export default async function handler(req, res) {
 
     return json(res, 200, {
       ok: true,
-      mode: room.mode,
+      mode: requestedMode,
       rounds: roundCount,
       questionCount: totalQuestions,
       message: 'Trivia questions assigned successfully'
