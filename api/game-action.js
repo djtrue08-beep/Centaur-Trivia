@@ -26,7 +26,7 @@ export default async function handler(req, res) {
       return json(res, 200, { ok: true, phase: 'question' });
     }
     const number = room.current_question_number;
-    const total = room.mode === 'full' ? 30 : 15;
+    const total = room.mode === 'full' ? 31 : 16;
     if (action === 'finish') {
       if (room.game_phase !== 'answering') return json(res, 409, { error: 'Answers are not open' });
       const { data: assigned, error: ae } = await s.from('game_questions')
@@ -75,7 +75,8 @@ export default async function handler(req, res) {
     let nextNumber = number;
     let finished = false;
     if (phase === 'reveal') {
-      if (number % 5 === 0) nextPhase = 'leaderboard';
+      if (number === total) { nextPhase = 'finished'; finished = true; }
+      else if (number % 5 === 0) nextPhase = 'leaderboard';
       else { nextPhase = 'question'; nextNumber++; }
     } else if (phase === 'leaderboard') {
       if (number === total) { nextPhase = 'finished'; finished = true; }
