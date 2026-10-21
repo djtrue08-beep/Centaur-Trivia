@@ -648,7 +648,7 @@ function narratePhase(data, key) {
   voiceFinished = false;
   if (data.phase === 'question') {
     const isFinal = data.number === data.total;
-    const isRoundStart = (data.number - 1) % 5 === 0;
+    const isRoundStart = !isFinal && (data.number - 1) % 5 === 0;
     const readQuestion = () => {
       if (lastPhaseKey !== key) return;
       $('roundCurtain').classList.add('hidden');
@@ -743,7 +743,9 @@ function renderGame(data) {
       $('roundCurtain').classList.add('hidden');
     }
   }
-  $('gameMeta').textContent = `ROUND ${data.round} · QUESTION ${((data.number - 1) % 5) + 1}/5`;
+  $('gameMeta').textContent = data.number === data.total
+    ? 'FINAL QUESTION · 500 POINTS'
+    : `ROUND ${data.round} · QUESTION ${((data.number - 1) % 5) + 1}/5`;
   $('gameHeading').textContent = data.phase === 'finished' ? 'GAME COMPLETE' : '';
   $('category').textContent = data.category || '';
   $('questionText').textContent = data.question || '';
