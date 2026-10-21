@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     const result = {
       status: room.status, phase, mode: room.mode, number,
       round: number ? Math.ceil(number / 5) : 0,
-      total: roundCount * 5, roundCount,
+      total: roundCount * 5 + 1, roundCount,
       endsAt: room.question_ends_at,
       paused: !!room.is_paused,
       remainingMs: room.is_paused ? room.pause_remaining_ms : null,
