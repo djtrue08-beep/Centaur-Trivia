@@ -71,9 +71,9 @@ function applyPause(paused) {
     clearTimeout(leaderboardAdvanceTimeout);
     revealAdvanceTimeout = null;
     leaderboardAdvanceTimeout = null;
-    if (CrixusVoice.supported) speechSynthesis.pause();
+    CrixusVoice.pause();
   } else {
-    if (CrixusVoice.supported) speechSynthesis.resume();
+    CrixusVoice.resume();
     if (pausedRevealRemaining !== null && lastPhaseKey.endsWith(':reveal')) {
       revealAdvanceKey = '';
       scheduleRevealAdvance(lastPhaseKey, pausedRevealRemaining);
@@ -243,6 +243,7 @@ $('create').onclick = async () => {
 
 function resetHostForLobby() {
   CrixusVoice.cancel();
+  CrixusVoice.resume();
   clearTimeout(revealAdvanceTimeout);
   clearTimeout(leaderboardAdvanceTimeout);
   clearTimeout(roundCurtainTimeout);
@@ -341,7 +342,7 @@ function voiceSelection() {
   };
 }
 $('testVoice').onclick = () => {
-  if (gamePaused && CrixusVoice.supported) speechSynthesis.resume();
+  if (gamePaused) CrixusVoice.resume();
   CrixusVoice.speakWithSettings('Hey everybody, I am Crixus. Welcome to Centaur Trivia. Let us have some fun!', voiceSelection());
 };
 $('saveVoice').onclick = () => {
