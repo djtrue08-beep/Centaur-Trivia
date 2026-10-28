@@ -678,7 +678,7 @@ function narratePhase(data, key) {
     const count = (data.leaderboard || []).filter(p => p.score === highest).length;
     CrixusVoice.speak(count === 1
       ? nextDialogue('champions')
-      : `The crown is shared by ${count} champions tonight! Well played, warriors!`);
+      : "The crown is shared tonight! Congratulations to our champions!");
   }
 }
 

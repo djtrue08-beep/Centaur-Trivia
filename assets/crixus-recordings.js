@@ -386,6 +386,10 @@ window.CrixusRecordings = [
     "src": "/assets/audio/Crixus_096.mp3"
   },
   {
+    "text": "That's a wrap! Congratulations to our winner!",
+    "src": "/assets/audio/Crixus_097.mp3"
+  },
+  {
     "text": "Somebody came ready to play tonight. Congratulations!",
     "src": "/assets/audio/Crixus_098.mp3"
   },
@@ -410,6 +414,22 @@ window.CrixusRecordings = [
     "src": "/assets/audio/Crixus_103.mp3"
   },
   {
+    "text": "Respect where it's due. Excellent game!",
+    "src": "/assets/audio/Crixus_104.mp3"
+  },
+  {
+    "text": "A strong finish and a well-deserved victory!",
+    "src": "/assets/audio/Crixus_105.mp3"
+  },
+  {
+    "text": "This Centaur tips his hat to tonight's winner.",
+    "src": "/assets/audio/Crixus_106.mp3"
+  },
+  {
+    "text": "Give our champion some love! That was a good game.",
+    "src": "/assets/audio/Crixus_107.mp3"
+  },
+  {
     "text": "What a finish! Congratulations to our winner.",
     "src": "/assets/audio/Crixus_109.mp3"
   },
@@ -422,11 +442,31 @@ window.CrixusRecordings = [
     "src": "/assets/audio/Crixus_111.mp3"
   },
   {
+    "text": "Short intermission, everybody. We'll be right back.",
+    "src": "/assets/audio/Crixus_112.mp3"
+  },
+  {
     "text": "Take a moment to reset. More trivia is coming.",
     "src": "/assets/audio/Crixus_114.mp3"
   },
   {
     "text": "Quick break. Save the trash talk for the next round.",
     "src": "/assets/audio/Crixus_115.mp3"
+  },
+  {
+    "text": "We're pausing for a moment. Stay close.",
+    "src": "/assets/audio/Crixus_116.mp3"
+  },
+  {
+    "text": "Grab some water and come back ready.",
+    "src": "/assets/audio/Crixus_117.mp3"
+  },
+  {
+    "text": "Take a breather. The next round is waiting.",
+    "src": "/assets/audio/Crixus_118.mp3"
+  },
+  {
+    "text": "We'll be back shortly. Don't lose that momentum.",
+    "src": "/assets/audio/Crixus_119.mp3"
   }
 ];

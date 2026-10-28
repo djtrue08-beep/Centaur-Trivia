@@ -1,6 +1,6 @@
 # Crixus recordings
 
-107 completed Obsidian recordings are installed. `Crixus_Index.csv` preserves the exact 125 dialogue-library entries, source references, conversion status, and installation status. Missing recordings retain their original numbering.
+117 completed Obsidian recordings are installed. `Crixus_Index.csv` preserves the exact 125 dialogue-library entries, source references, conversion status, and installation status. Missing recordings retain their original numbering.
 
 Voice: Obsidian (`QjEdRoRdZC2i3ncmFpNy`); model: `eleven_v4`.
 
@@ -29,3 +29,7 @@ Latest batch: all 11 prior failed lines completed, plus new recordings 087 and 0
 Latest batch: failed lines 085 and 086 completed, plus 089–096 and 098–101. Line 097 failed with the free-tier restriction; line 102 hit the per-minute limit without starting. Current totals: 100 installed, 1 conversion failure, 24 not generated.
 
 Latest batch: 102, 103, 109–111, 114, and 115 completed and installed. Eight attempts failed with the free-tier restriction; line 116 hit the per-minute limit without starting. Current totals: 107 installed, 8 conversion failures, 10 not generated.
+
+Expanded approved scope: 142 recordings. The first 125 preserve dialogueLibrary source order; 126 is the exact opening instructions; 127–134 expand the round/points template for both game modes; 135–140 expand round completion for rounds 1–6; 141 is the exact final points announcement; 142 is the user-approved generic shared-champions announcement. Template expansions are deterministic written-source expansions, not audio transcriptions. The generic tie announcement replaces the runtime winner-count wording; names and champion count remain visual. These 17 additional recordings are pending; until recorded, existing browser fallback remains.
+
+Latest batch: 10 more recordings installed (097, 104–107, 112, 116–119). Current totals: 117 installed, 3 conversion failures, 22 not generated. 25 recordings remain across the expanded 142-line scope.
