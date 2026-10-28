@@ -44,5 +44,37 @@ window.CrixusRecordings = [
   {
     "text": "Don't overthink this one.",
     "src": "/assets/audio/Crixus_015.mp3"
+  },
+  {
+    "text": "Here's your next challenge.",
+    "src": "/assets/audio/Crixus_017.mp3"
+  },
+  {
+    "text": "Let's keep the momentum going.",
+    "src": "/assets/audio/Crixus_019.mp3"
+  },
+  {
+    "text": "This one could shake things up.",
+    "src": "/assets/audio/Crixus_020.mp3"
+  },
+  {
+    "text": "Alright, here we go.",
+    "src": "/assets/audio/Crixus_021.mp3"
+  },
+  {
+    "text": "Let's see who's locked in.",
+    "src": "/assets/audio/Crixus_022.mp3"
+  },
+  {
+    "text": "A little brainpower, please.",
+    "src": "/assets/audio/Crixus_024.mp3"
+  },
+  {
+    "text": "Phones ready? Here it comes.",
+    "src": "/assets/audio/Crixus_028.mp3"
+  },
+  {
+    "text": "I've got another one for you.",
+    "src": "/assets/audio/Crixus_029.mp3"
   }
 ];

@@ -19,12 +19,13 @@ function setup() {
   vm.runInContext(fs.readFileSync(path.join(root, 'assets/crixus-voice.js'), 'utf8') + '\nthis.voice = CrixusVoice;', context);
   return { voice: context.voice, clips: context.window.CrixusRecordings, audio, spoken };
 }
-test('all 11 exact mappings point at existing MP3 files and current source dialogue', () => {
+test('all exact mappings point at existing MP3 files and current source dialogue', () => {
   const { clips } = setup();
   const host = fs.readFileSync(path.join(root, 'assets/host.js'), 'utf8');
   const library = JSON.parse(host.match(/const dialogueLibrary = (\{[\s\S]*?\n\});/)[1]);
   const lines = Object.values(library).flat();
-  assert.equal(clips.length, 11);
+  assert.equal(clips.length, fs.readdirSync(path.join(root, 'assets/audio')).filter(name => name.endsWith('.mp3')).length);
+  assert.ok(clips.length > 0);
   for (const clip of clips) {
     assert.ok(lines.includes(clip.text));
     assert.ok(fs.statSync(path.join(root, clip.src)).size > 1000);

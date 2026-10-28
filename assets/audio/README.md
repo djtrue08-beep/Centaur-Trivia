@@ -1,6 +1,6 @@
 # Crixus recordings
 
-11 completed Obsidian recordings are installed. `Crixus_Index.csv` preserves the exact 125 dialogue-library entries, source references, conversion status, and installation status. Missing recordings retain their original numbering.
+19 completed Obsidian recordings are installed. `Crixus_Index.csv` preserves the exact 125 dialogue-library entries, source references, conversion status, and installation status. Missing recordings retain their original numbering.
 
 Voice: Obsidian (`QjEdRoRdZC2i3ncmFpNy`); model: `eleven_v4`.
 
@@ -9,3 +9,5 @@ Voice: Obsidian (`QjEdRoRdZC2i3ncmFpNy`); model: `eleven_v4`.
 Generation limits: five attempted lines failed with an ElevenLabs free-tier access restriction, and generation stopped at line 017 after the per-minute limit. Those failures and unprocessed lines are listed in the index. The supplied audio decodes successfully; pronunciation has not been independently audited.
 
 Run playback logic checks with `node --test tests/crixus-voice.test.cjs` from the repository root.
+
+Follow-up batch: 8 additional recordings installed (017, 019–022, 024, 028–029). Eight attempted generations failed with the same free-tier restriction. Line 033 was blocked by the per-minute limit without starting. Total installed: 19; conversion failures: 13; not generated: 93.
