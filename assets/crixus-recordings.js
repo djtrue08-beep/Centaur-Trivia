@@ -430,6 +430,10 @@ window.CrixusRecordings = [
     "src": "/assets/audio/Crixus_107.mp3"
   },
   {
+    "text": "We have a champion! Go ahead and enjoy those bragging rights.",
+    "src": "/assets/audio/Crixus_108.mp3"
+  },
+  {
     "text": "What a finish! Congratulations to our winner.",
     "src": "/assets/audio/Crixus_109.mp3"
   },
@@ -444,6 +448,10 @@ window.CrixusRecordings = [
   {
     "text": "Short intermission, everybody. We'll be right back.",
     "src": "/assets/audio/Crixus_112.mp3"
+  },
+  {
+    "text": "Time to stretch those legs. All four, if you've got them.",
+    "src": "/assets/audio/Crixus_113.mp3"
   },
   {
     "text": "Take a moment to reset. More trivia is coming.",
@@ -520,5 +528,37 @@ window.CrixusRecordings = [
   {
     "text": "Round 4! Correct answers are worth 200 points. ",
     "src": "/assets/audio/Crixus_132.mp3"
+  },
+  {
+    "text": "Round 5! Correct answers are worth 300 points. ",
+    "src": "/assets/audio/Crixus_133.mp3"
+  },
+  {
+    "text": "Round 6! Correct answers are worth 300 points. ",
+    "src": "/assets/audio/Crixus_134.mp3"
+  },
+  {
+    "text": "Round 1 is complete. ",
+    "src": "/assets/audio/Crixus_135.mp3"
+  },
+  {
+    "text": "Round 2 is complete. ",
+    "src": "/assets/audio/Crixus_136.mp3"
+  },
+  {
+    "text": "Round 3 is complete. ",
+    "src": "/assets/audio/Crixus_137.mp3"
+  },
+  {
+    "text": "Round 5 is complete. ",
+    "src": "/assets/audio/Crixus_139.mp3"
+  },
+  {
+    "text": " This final question is worth five hundred points.",
+    "src": "/assets/audio/Crixus_141.mp3"
+  },
+  {
+    "text": "The crown is shared tonight! Congratulations to our champions!",
+    "src": "/assets/audio/Crixus_142.mp3"
   }
 ];
