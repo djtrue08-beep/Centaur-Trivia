@@ -2,12 +2,24 @@
 // Add future recordings here; unrecorded dialogue uses the browser voice.
 window.CrixusRecordings = [
   {
+    "text": "Welcome in, everybody! Crixus here, and I've got questions for you.",
+    "src": "/assets/audio/Crixus_002.mp3"
+  },
+  {
     "text": "Good to see you all! I'm Crixus, and tonight we're putting that confidence to the test.",
     "src": "/assets/audio/Crixus_003.mp3"
   },
   {
+    "text": "Welcome to Centaur Trivia! I'm Crixus, and I'm ready to see what you know.",
+    "src": "/assets/audio/Crixus_004.mp3"
+  },
+  {
     "text": "Hey, everybody! Crixus on the mic. Let's have a little friendly competition.",
     "src": "/assets/audio/Crixus_005.mp3"
+  },
+  {
+    "text": "Welcome, players! I'm Crixus, and I hope you brought your thinking caps.",
+    "src": "/assets/audio/Crixus_006.mp3"
   },
   {
     "text": "What's happening, family? I'm Crixus, and we're about to have some fun.",
