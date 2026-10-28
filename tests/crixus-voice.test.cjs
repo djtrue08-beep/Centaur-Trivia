@@ -24,6 +24,13 @@ test('all exact mappings point at existing MP3 files and current source dialogue
   const host = fs.readFileSync(path.join(root, 'assets/host.js'), 'utf8');
   const library = JSON.parse(host.match(/const dialogueLibrary = (\{[\s\S]*?\n\});/)[1]);
   const lines = Object.values(library).flat();
+  lines.push(host.match(/const opening = nextDialogue\('introductions'\) \+ '([^']*)';/)[1]);
+  lines.push(' This final question is worth five hundred points.');
+  lines.push('The crown is shared tonight! Congratulations to our champions!');
+  for (const [round, points] of [[1,100],[2,100],[2,200],[3,200],[3,300],[4,200],[5,300],[6,300]]) {
+    lines.push(`Round ${round}! Correct answers are worth ${points} points. `);
+  }
+  for (let round = 1; round <= 6; round++) lines.push(`Round ${round} is complete. `);
   assert.equal(clips.length, fs.readdirSync(path.join(root, 'assets/audio')).filter(name => name.endsWith('.mp3')).length);
   assert.ok(clips.length > 0);
   for (const clip of clips) {
@@ -85,4 +92,15 @@ test('muting stops audio and returns completion without speaking', () => {
   voice.speak(clips[0].text); voice.setEnabled(false);
   voice.speak(clips[0].text, () => done++);
   assert.equal(audio.length, 1); assert.equal(spoken.length, 0); assert.equal(done, 1);
+});
+
+test('full opening plays recorded introduction then recorded instructions before ready', () => {
+  const { voice, clips, audio, spoken } = setup(); let done = 0;
+  const host = fs.readFileSync(path.join(root, 'assets/host.js'), 'utf8');
+  const rules = host.match(/const opening = nextDialogue\('introductions'\) \+ '([^']*)';/)[1];
+  assert.ok(clips.some(clip => clip.text === rules));
+  voice.speak(clips[0].text + rules, () => done++);
+  audio[0].onended(); assert.equal(done, 0);
+  assert.equal(audio[1].src, clips.find(clip => clip.text === rules).src);
+  audio[1].onended(); assert.equal(done, 1); assert.equal(spoken.length, 0);
 });

@@ -468,5 +468,57 @@ window.CrixusRecordings = [
   {
     "text": "We'll be back shortly. Don't lose that momentum.",
     "src": "/assets/audio/Crixus_119.mp3"
+  },
+  {
+    "text": "Intermission time. You've earned a quick rest.",
+    "src": "/assets/audio/Crixus_120.mp3"
+  },
+  {
+    "text": "Back to the lobby, everybody. Let's get ready for another round.",
+    "src": "/assets/audio/Crixus_121.mp3"
+  },
+  {
+    "text": "We're resetting the game. Hang tight, everyone.",
+    "src": "/assets/audio/Crixus_122.mp3"
+  },
+  {
+    "text": "New game coming up. Same crew, fresh start.",
+    "src": "/assets/audio/Crixus_123.mp3"
+  },
+  {
+    "text": "We're back in the lobby. Get those phones ready.",
+    "src": "/assets/audio/Crixus_124.mp3"
+  },
+  {
+    "text": "That's a reset. Let's get the next game started.",
+    "src": "/assets/audio/Crixus_125.mp3"
+  },
+  {
+    "text": " My digital assistant will read the questions. Choose one of four answers on your phone. Once you lock in, there is no changing it. Correct answers earn points. Let the contest begin!",
+    "src": "/assets/audio/Crixus_126.mp3"
+  },
+  {
+    "text": "Round 1! Correct answers are worth 100 points. ",
+    "src": "/assets/audio/Crixus_127.mp3"
+  },
+  {
+    "text": "Round 2! Correct answers are worth 100 points. ",
+    "src": "/assets/audio/Crixus_128.mp3"
+  },
+  {
+    "text": "Round 2! Correct answers are worth 200 points. ",
+    "src": "/assets/audio/Crixus_129.mp3"
+  },
+  {
+    "text": "Round 3! Correct answers are worth 200 points. ",
+    "src": "/assets/audio/Crixus_130.mp3"
+  },
+  {
+    "text": "Round 3! Correct answers are worth 300 points. ",
+    "src": "/assets/audio/Crixus_131.mp3"
+  },
+  {
+    "text": "Round 4! Correct answers are worth 200 points. ",
+    "src": "/assets/audio/Crixus_132.mp3"
   }
 ];
