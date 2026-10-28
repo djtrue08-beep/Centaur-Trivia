@@ -132,5 +132,57 @@ window.CrixusRecordings = [
   {
     "text": "You either knew it or made a very lucky guess.",
     "src": "/assets/audio/Crixus_047.mp3"
+  },
+  {
+    "text": "If you missed it, there's another chance coming.",
+    "src": "/assets/audio/Crixus_049.mp3"
+  },
+  {
+    "text": "That one definitely separated the guesses from the knowledge.",
+    "src": "/assets/audio/Crixus_050.mp3"
+  },
+  {
+    "text": "The answer is in. Let's keep moving.",
+    "src": "/assets/audio/Crixus_051.mp3"
+  },
+  {
+    "text": "Somebody's confidence just went up a notch.",
+    "src": "/assets/audio/Crixus_052.mp3"
+  },
+  {
+    "text": "I hope you didn't second-guess yourself.",
+    "src": "/assets/audio/Crixus_053.mp3"
+  },
+  {
+    "text": "A little trivia wisdom for the road.",
+    "src": "/assets/audio/Crixus_054.mp3"
+  },
+  {
+    "text": "Let's keep the good energy going.",
+    "src": "/assets/audio/Crixus_056.mp3"
+  },
+  {
+    "text": "New round, fresh opportunity.",
+    "src": "/assets/audio/Crixus_057.mp3"
+  },
+  {
+    "text": "The competition is heating up.",
+    "src": "/assets/audio/Crixus_058.mp3"
+  },
+  {
+    "text": "Everybody's still got a shot.",
+    "src": "/assets/audio/Crixus_059.mp3"
+  },
+  {
+    "text": "Let's see who can make a move.",
+    "src": "/assets/audio/Crixus_061.mp3"
+  },
+  {
+    "text": "New round. Same confidence. Better answers, hopefully.",
+    "src": "/assets/audio/Crixus_062.mp3"
+  },
+  {
+    "text": "Stay focused. This could change everything.",
+    "src": "/assets/audio/Crixus_063.mp3"
   }
 ];
