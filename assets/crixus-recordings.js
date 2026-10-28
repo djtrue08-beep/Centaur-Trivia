@@ -400,5 +400,33 @@ window.CrixusRecordings = [
   {
     "text": "And the crown goes to our champion! Well played.",
     "src": "/assets/audio/Crixus_101.mp3"
+  },
+  {
+    "text": "That's what I'm talking about! Congratulations to the winner.",
+    "src": "/assets/audio/Crixus_102.mp3"
+  },
+  {
+    "text": "The results are in, and we've got our champion!",
+    "src": "/assets/audio/Crixus_103.mp3"
+  },
+  {
+    "text": "What a finish! Congratulations to our winner.",
+    "src": "/assets/audio/Crixus_109.mp3"
+  },
+  {
+    "text": "That's the game, everybody! Let's hear it for the champion!",
+    "src": "/assets/audio/Crixus_110.mp3"
+  },
+  {
+    "text": "We're taking a quick break. Don't wander too far.",
+    "src": "/assets/audio/Crixus_111.mp3"
+  },
+  {
+    "text": "Take a moment to reset. More trivia is coming.",
+    "src": "/assets/audio/Crixus_114.mp3"
+  },
+  {
+    "text": "Quick break. Save the trash talk for the next round.",
+    "src": "/assets/audio/Crixus_115.mp3"
   }
 ];
