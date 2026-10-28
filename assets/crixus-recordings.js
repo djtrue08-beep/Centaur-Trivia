@@ -90,8 +90,24 @@ window.CrixusRecordings = [
     "src": "/assets/audio/Crixus_022.mp3"
   },
   {
+    "text": "Pay attention to this one.",
+    "src": "/assets/audio/Crixus_023.mp3"
+  },
+  {
     "text": "A little brainpower, please.",
     "src": "/assets/audio/Crixus_024.mp3"
+  },
+  {
+    "text": "Let's make this interesting.",
+    "src": "/assets/audio/Crixus_025.mp3"
+  },
+  {
+    "text": "Somebody's going to love this question.",
+    "src": "/assets/audio/Crixus_026.mp3"
+  },
+  {
+    "text": "Let's see who's on a roll.",
+    "src": "/assets/audio/Crixus_027.mp3"
   },
   {
     "text": "Phones ready? Here it comes.",
@@ -100,6 +116,14 @@ window.CrixusRecordings = [
   {
     "text": "I've got another one for you.",
     "src": "/assets/audio/Crixus_029.mp3"
+  },
+  {
+    "text": "Now we're getting somewhere.",
+    "src": "/assets/audio/Crixus_030.mp3"
+  },
+  {
+    "text": "There's your answer! Hope you trusted yourself.",
+    "src": "/assets/audio/Crixus_031.mp3"
   },
   {
     "text": "Some of y'all knew that. Some of y'all guessed with confidence.",
@@ -274,6 +298,14 @@ window.CrixusRecordings = [
     "src": "/assets/audio/Crixus_074.mp3"
   },
   {
+    "text": "The numbers don't lie. Let's take a look.",
+    "src": "/assets/audio/Crixus_075.mp3"
+  },
+  {
+    "text": "Somebody's climbing that leaderboard.",
+    "src": "/assets/audio/Crixus_076.mp3"
+  },
+  {
     "text": "Let's see who came to compete.",
     "src": "/assets/audio/Crixus_077.mp3"
   },
@@ -286,11 +318,31 @@ window.CrixusRecordings = [
     "src": "/assets/audio/Crixus_079.mp3"
   },
   {
+    "text": "Let's check on our front-runners.",
+    "src": "/assets/audio/Crixus_080.mp3"
+  },
+  {
+    "text": "There might be a surprise in these standings.",
+    "src": "/assets/audio/Crixus_081.mp3"
+  },
+  {
     "text": "Take a look at that leaderboard.",
     "src": "/assets/audio/Crixus_082.mp3"
   },
   {
     "text": "The race is getting interesting.",
     "src": "/assets/audio/Crixus_083.mp3"
+  },
+  {
+    "text": "Let's see who has bragging rights right now.",
+    "src": "/assets/audio/Crixus_084.mp3"
+  },
+  {
+    "text": "The final question is here. Make it count.",
+    "src": "/assets/audio/Crixus_087.mp3"
+  },
+  {
+    "text": "Alright, everybody, this is your moment.",
+    "src": "/assets/audio/Crixus_088.mp3"
   }
 ];
