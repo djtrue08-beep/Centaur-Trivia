@@ -1,6 +1,6 @@
 # Crixus recordings
 
-63 completed Obsidian recordings are installed. `Crixus_Index.csv` preserves the exact 125 dialogue-library entries, source references, conversion status, and installation status. Missing recordings retain their original numbering.
+73 completed Obsidian recordings are installed. `Crixus_Index.csv` preserves the exact 125 dialogue-library entries, source references, conversion status, and installation status. Missing recordings retain their original numbering.
 
 Voice: Obsidian (`QjEdRoRdZC2i3ncmFpNy`); model: `eleven_v4`.
 
@@ -21,3 +21,5 @@ Latest batch: 12 additional recordings installed (064–068, 071–074, 077–07
 Latest batch: recordings 082 and 083 installed. Lines 081 and 084 failed with the free-tier restriction; line 085 was blocked because free generations were busy. Current totals: 60 installed, 24 conversion failures, 41 not generated.
 
 Failed-line retries: 002, 004, and 006 completed and installed. Line 001 failed again with the free-tier restriction; retry of 016 was blocked because free generations were busy (prior failure status retained). Current totals: 63 installed, 21 conversion failures, 41 not generated.
+
+Latest failed-line retries: 001, 016, 018, 032, 043, 048, 055, 060, 069, and 070 completed and installed. Six attempts failed again with the free-tier restriction; retry of 075 hit the per-minute limit (prior failure status retained). Current totals: 73 installed, 11 conversion failures, 41 not generated.

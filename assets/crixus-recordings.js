@@ -2,6 +2,10 @@
 // Add future recordings here; unrecorded dialogue uses the browser voice.
 window.CrixusRecordings = [
   {
+    "text": "What's going on everybody? I'm Crixus, and welcome to Centaur Trivia!",
+    "src": "/assets/audio/Crixus_001.mp3"
+  },
+  {
     "text": "Welcome in, everybody! Crixus here, and I've got questions for you.",
     "src": "/assets/audio/Crixus_002.mp3"
   },
@@ -58,8 +62,16 @@ window.CrixusRecordings = [
     "src": "/assets/audio/Crixus_015.mp3"
   },
   {
+    "text": "Ready for another?",
+    "src": "/assets/audio/Crixus_016.mp3"
+  },
+  {
     "text": "Here's your next challenge.",
     "src": "/assets/audio/Crixus_017.mp3"
+  },
+  {
+    "text": "Trust your instincts.",
+    "src": "/assets/audio/Crixus_018.mp3"
   },
   {
     "text": "Let's keep the momentum going.",
@@ -88,6 +100,10 @@ window.CrixusRecordings = [
   {
     "text": "I've got another one for you.",
     "src": "/assets/audio/Crixus_029.mp3"
+  },
+  {
+    "text": "Some of y'all knew that. Some of y'all guessed with confidence.",
+    "src": "/assets/audio/Crixus_032.mp3"
   },
   {
     "text": "That's the one! How'd everybody do?",
@@ -130,6 +146,10 @@ window.CrixusRecordings = [
     "src": "/assets/audio/Crixus_042.mp3"
   },
   {
+    "text": "I can hear the excuses warming up already.",
+    "src": "/assets/audio/Crixus_043.mp3"
+  },
+  {
     "text": "That's how the points are earned.",
     "src": "/assets/audio/Crixus_044.mp3"
   },
@@ -144,6 +164,10 @@ window.CrixusRecordings = [
   {
     "text": "You either knew it or made a very lucky guess.",
     "src": "/assets/audio/Crixus_047.mp3"
+  },
+  {
+    "text": "This Centaur respects a solid answer.",
+    "src": "/assets/audio/Crixus_048.mp3"
   },
   {
     "text": "If you missed it, there's another chance coming.",
@@ -170,6 +194,10 @@ window.CrixusRecordings = [
     "src": "/assets/audio/Crixus_054.mp3"
   },
   {
+    "text": "And that's another one in the books.",
+    "src": "/assets/audio/Crixus_055.mp3"
+  },
+  {
     "text": "Let's keep the good energy going.",
     "src": "/assets/audio/Crixus_056.mp3"
   },
@@ -184,6 +212,10 @@ window.CrixusRecordings = [
   {
     "text": "Everybody's still got a shot.",
     "src": "/assets/audio/Crixus_059.mp3"
+  },
+  {
+    "text": "Time to turn things up a little.",
+    "src": "/assets/audio/Crixus_060.mp3"
   },
   {
     "text": "Let's see who can make a move.",
@@ -216,6 +248,14 @@ window.CrixusRecordings = [
   {
     "text": "Keep your phones ready and your minds sharp.",
     "src": "/assets/audio/Crixus_068.mp3"
+  },
+  {
+    "text": "This Centaur likes a close contest.",
+    "src": "/assets/audio/Crixus_069.mp3"
+  },
+  {
+    "text": "Let's see who rises to the challenge.",
+    "src": "/assets/audio/Crixus_070.mp3"
   },
   {
     "text": "Let's check the standings.",

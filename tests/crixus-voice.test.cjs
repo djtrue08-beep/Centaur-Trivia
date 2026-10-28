@@ -53,8 +53,8 @@ test('browser instructions before a clip are retained', () => {
 });
 test('missing recording uses browser without requesting a nonexistent file', () => {
   const { voice, audio, spoken } = setup();
-  voice.speak('Trust your instincts.'); assert.equal(audio.length, 0);
-  assert.equal(spoken[0].text, 'Trust your instincts.');
+  voice.speak('Unrecorded fallback test.'); assert.equal(audio.length, 0);
+  assert.equal(spoken[0].text, 'Unrecorded fallback test.');
 });
 test('failed audio falls back once and is skipped on subsequent attempts', () => {
   const { voice, clips, audio, spoken } = setup(); let done = 0;
