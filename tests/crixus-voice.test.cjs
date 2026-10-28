@@ -104,3 +104,28 @@ test('full opening plays recorded introduction then recorded instructions before
   assert.equal(audio[1].src, clips.find(clip => clip.text === rules).src);
   audio[1].onended(); assert.equal(done, 1); assert.equal(spoken.length, 0);
 });
+
+test('every approved gameplay host announcement uses recordings without browser speech', () => {
+  const { voice, clips, audio, spoken } = setup();
+  const host = fs.readFileSync(path.join(root, 'assets/host.js'), 'utf8');
+  const library = JSON.parse(host.match(/const dialogueLibrary = (\{[\s\S]*?\n\});/)[1]);
+  const rules = host.match(/const opening = nextDialogue\('introductions'\) \+ '([^']*)';/)[1];
+  const announcements = Object.values(library).flat();
+  announcements.push(...library.introductions.map(line => line + rules));
+  for (const [round, points] of [[1,100],[2,100],[2,200],[3,200],[3,300],[4,200],[5,300],[6,300]]) {
+    announcements.push(...library.rounds.map(line => `Round ${round}! Correct answers are worth ${points} points. ` + line));
+  }
+  for (let round = 1; round <= 6; round++) {
+    announcements.push(...library.leaderboards.map(line => `Round ${round} is complete. ` + line));
+  }
+  announcements.push(...library.finals.map(line => line + ' This final question is worth five hundred points.'));
+  announcements.push('The crown is shared tonight! Congratulations to our champions!');
+  assert.equal(clips.length, 142);
+  for (const text of announcements) {
+    audio.length = 0; spoken.length = 0; let done = 0;
+    voice.speak(text, () => done++);
+    for (let index = 0; index < audio.length; index++) audio[index].onended();
+    assert.equal(spoken.length, 0, text);
+    assert.equal(done, 1, text);
+  }
+});

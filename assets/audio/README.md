@@ -1,6 +1,6 @@
 # Crixus recordings
 
-141 completed Obsidian recordings are installed. `Crixus_Index.csv` preserves the exact 125 dialogue-library entries, source references, conversion status, and installation status. Missing recordings retain their original numbering.
+142 completed Obsidian recordings are installed. `Crixus_Index.csv` preserves the exact 125 dialogue-library entries, source references, conversion status, and installation status. Missing recordings retain their original numbering.
 
 Voice: Obsidian (`QjEdRoRdZC2i3ncmFpNy`); model: `eleven_v4`.
 
@@ -39,3 +39,5 @@ Latest batch: 120–132 completed, including the opening instructions and six ro
 Latest batch: 108, 113, 133–137, 139, 141, and 142 completed and installed. Only 138 (round 4 complete) and 140 (round 6 complete) remain after free-tier failures. Current totals: 140 installed, 2 conversion failures, 0 unattempted.
 
 Final retries: 138 (round 4 complete) succeeded and installed. Retry of 140 (round 6 complete) did not start because free generations were busy. Total installed: 141 of 142; only 140 remains.
+
+COMPLETE: final recording 140 (round 6 complete) succeeded and installed. All 142 approved dialogue/rules/round/final/tie recordings are installed. Earlier failure and pending notes above are historical batch logs. Browser voice remains for trivia questions, settings previews, and technical playback fallback.

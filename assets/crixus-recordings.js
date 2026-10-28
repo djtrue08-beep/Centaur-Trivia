@@ -558,6 +558,10 @@ window.CrixusRecordings = [
     "src": "/assets/audio/Crixus_139.mp3"
   },
   {
+    "text": "Round 6 is complete. ",
+    "src": "/assets/audio/Crixus_140.mp3"
+  },
+  {
     "text": " This final question is worth five hundred points.",
     "src": "/assets/audio/Crixus_141.mp3"
   },
