@@ -338,11 +338,67 @@ window.CrixusRecordings = [
     "src": "/assets/audio/Crixus_084.mp3"
   },
   {
+    "text": "Here come the standings. No excuses!",
+    "src": "/assets/audio/Crixus_085.mp3"
+  },
+  {
+    "text": "This is it! One last question.",
+    "src": "/assets/audio/Crixus_086.mp3"
+  },
+  {
     "text": "The final question is here. Make it count.",
     "src": "/assets/audio/Crixus_087.mp3"
   },
   {
     "text": "Alright, everybody, this is your moment.",
     "src": "/assets/audio/Crixus_088.mp3"
+  },
+  {
+    "text": "One more question before we crown a champion.",
+    "src": "/assets/audio/Crixus_089.mp3"
+  },
+  {
+    "text": "Time for the final challenge. Stay sharp.",
+    "src": "/assets/audio/Crixus_090.mp3"
+  },
+  {
+    "text": "Here's where things get interesting. Final question!",
+    "src": "/assets/audio/Crixus_091.mp3"
+  },
+  {
+    "text": "You've made it this far. Finish strong.",
+    "src": "/assets/audio/Crixus_092.mp3"
+  },
+  {
+    "text": "One question left. No pressure. Well, maybe a little.",
+    "src": "/assets/audio/Crixus_093.mp3"
+  },
+  {
+    "text": "Let's see who can close this thing out.",
+    "src": "/assets/audio/Crixus_094.mp3"
+  },
+  {
+    "text": "This Centaur loves a dramatic finish. Here we go!",
+    "src": "/assets/audio/Crixus_095.mp3"
+  },
+  {
+    "text": "We have our champion! Give it up for a well-earned win!",
+    "src": "/assets/audio/Crixus_096.mp3"
+  },
+  {
+    "text": "Somebody came ready to play tonight. Congratulations!",
+    "src": "/assets/audio/Crixus_098.mp3"
+  },
+  {
+    "text": "We have a winner! Everybody else, there's always next time.",
+    "src": "/assets/audio/Crixus_099.mp3"
+  },
+  {
+    "text": "Big congratulations! That's how you finish a trivia game.",
+    "src": "/assets/audio/Crixus_100.mp3"
+  },
+  {
+    "text": "And the crown goes to our champion! Well played.",
+    "src": "/assets/audio/Crixus_101.mp3"
   }
 ];
