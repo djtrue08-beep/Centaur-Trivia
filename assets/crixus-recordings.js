@@ -184,5 +184,53 @@ window.CrixusRecordings = [
   {
     "text": "Stay focused. This could change everything.",
     "src": "/assets/audio/Crixus_063.mp3"
+  },
+  {
+    "text": "Nobody's out of it yet.",
+    "src": "/assets/audio/Crixus_064.mp3"
+  },
+  {
+    "text": "Let's get right back to it.",
+    "src": "/assets/audio/Crixus_065.mp3"
+  },
+  {
+    "text": "A fresh round means fresh chances.",
+    "src": "/assets/audio/Crixus_066.mp3"
+  },
+  {
+    "text": "The points are getting serious now.",
+    "src": "/assets/audio/Crixus_067.mp3"
+  },
+  {
+    "text": "Keep your phones ready and your minds sharp.",
+    "src": "/assets/audio/Crixus_068.mp3"
+  },
+  {
+    "text": "Let's check the standings.",
+    "src": "/assets/audio/Crixus_071.mp3"
+  },
+  {
+    "text": "Time to see who's making moves.",
+    "src": "/assets/audio/Crixus_072.mp3"
+  },
+  {
+    "text": "Here's where everybody stands.",
+    "src": "/assets/audio/Crixus_073.mp3"
+  },
+  {
+    "text": "Let's find out who's leading the pack.",
+    "src": "/assets/audio/Crixus_074.mp3"
+  },
+  {
+    "text": "Let's see who came to compete.",
+    "src": "/assets/audio/Crixus_077.mp3"
+  },
+  {
+    "text": "The scoreboard has a story to tell.",
+    "src": "/assets/audio/Crixus_078.mp3"
+  },
+  {
+    "text": "Who's up, who's down? Let's see.",
+    "src": "/assets/audio/Crixus_079.mp3"
   }
 ];
