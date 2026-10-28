@@ -232,5 +232,13 @@ window.CrixusRecordings = [
   {
     "text": "Who's up, who's down? Let's see.",
     "src": "/assets/audio/Crixus_079.mp3"
+  },
+  {
+    "text": "Take a look at that leaderboard.",
+    "src": "/assets/audio/Crixus_082.mp3"
+  },
+  {
+    "text": "The race is getting interesting.",
+    "src": "/assets/audio/Crixus_083.mp3"
   }
 ];
