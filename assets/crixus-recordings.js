@@ -76,5 +76,61 @@ window.CrixusRecordings = [
   {
     "text": "I've got another one for you.",
     "src": "/assets/audio/Crixus_029.mp3"
+  },
+  {
+    "text": "That's the one! How'd everybody do?",
+    "src": "/assets/audio/Crixus_033.mp3"
+  },
+  {
+    "text": "Now we know. No changing your answer after the fact!",
+    "src": "/assets/audio/Crixus_034.mp3"
+  },
+  {
+    "text": "There it is! Somebody just learned something.",
+    "src": "/assets/audio/Crixus_035.mp3"
+  },
+  {
+    "text": "If you got that right, take a quiet victory lap.",
+    "src": "/assets/audio/Crixus_036.mp3"
+  },
+  {
+    "text": "Some of y'all are on fire tonight.",
+    "src": "/assets/audio/Crixus_037.mp3"
+  },
+  {
+    "text": "That's your answer. No arguing with the screen.",
+    "src": "/assets/audio/Crixus_038.mp3"
+  },
+  {
+    "text": "Somebody out there is feeling real smart.",
+    "src": "/assets/audio/Crixus_039.mp3"
+  },
+  {
+    "text": "Well, that was interesting!",
+    "src": "/assets/audio/Crixus_040.mp3"
+  },
+  {
+    "text": "The correct answer has spoken for itself.",
+    "src": "/assets/audio/Crixus_041.mp3"
+  },
+  {
+    "text": "A few of y'all probably surprised yourselves.",
+    "src": "/assets/audio/Crixus_042.mp3"
+  },
+  {
+    "text": "That's how the points are earned.",
+    "src": "/assets/audio/Crixus_044.mp3"
+  },
+  {
+    "text": "The scoreboard might get interesting after that one.",
+    "src": "/assets/audio/Crixus_045.mp3"
+  },
+  {
+    "text": "No shame in learning something new.",
+    "src": "/assets/audio/Crixus_046.mp3"
+  },
+  {
+    "text": "You either knew it or made a very lucky guess.",
+    "src": "/assets/audio/Crixus_047.mp3"
   }
 ];
